@@ -24,14 +24,27 @@ class Kernel
       $request->getUri()
     );
 
-    [$status, [$controller, $method], $vars] = $routeInfo;
+    $status = $routeInfo[0];
 
-    $controller = new $controller;
+    if ($status === \FastRoute\Dispatcher::FOUND) {
+      [, [$controller, $method], $vars] = $routeInfo;
 
-    if ($controller instanceof AbstractController) {
-      $controller->setRequest($request);
+      $controller = new $controller;
+
+      if ($controller instanceof AbstractController) {
+        $controller->setRequest($request);
+      }
+
+      return call_user_func_array([$controller, $method], $vars);
+    } elseif ($status === \FastRoute\Dispatcher::NOT_FOUND) {
+
+      return new Response('404 Not Found', 404);
+    } elseif ($status === \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
+      // Optional: get allowed methods for this route
+      $allowedMethods = $routeInfo[1];
+      return new Response('405 Method Not Allowed', 405);
     }
 
-    return call_user_func_array([$controller, $method], $vars);
+    return new Response('500 Internal Server Error', 500);
   }
 }
