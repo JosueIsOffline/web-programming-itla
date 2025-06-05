@@ -45,4 +45,9 @@ class Request
   {
     return $this->post[$name];
   }
+
+  public function getAllPost(): array
+  {
+    return $this->post;
+  }
 }
