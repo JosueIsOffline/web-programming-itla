@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{% block title %}Barbie World{% endblock %}</title>
+	
+	<!-- Bootstrap CSS -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+	
+	<!-- Google Fonts -->
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	
+	<style>
+		:root {
+			--barbie-pink: #E91E63;
+			--barbie-light-pink: #FCE4EC;
+			--barbie-dark-pink: #C2185B;
+			--barbie-gold: #FFB300;
+			--barbie-white: #FFFFFF;
+		}
+
+		body {
+			font-family: 'Poppins', sans-serif;
+			background: linear-gradient(135deg, #FCE4EC 0%, #F8BBD9 100%);
+			min-height: 100vh;
+			display: flex;
+			flex-direction: column;
+		}
+
+		/* Navbar */
+		.navbar {
+			background: linear-gradient(45deg, var(--barbie-pink), var(--barbie-dark-pink)) !important;
+			box-shadow: 0 2px 10px rgba(233, 30, 99, 0.3);
+			padding: 1rem 0;
+		}
+
+		.navbar-brand {
+			font-weight: 700 !important;
+			font-size: 1.8rem !important;
+			color: var(--barbie-white) !important;
+		}
+
+		.nav-link {
+			color: var(--barbie-white) !important;
+			font-weight: 500 !important;
+			padding: 0.75rem 1rem !important;
+			transition: all 0.3s ease;
+		}
+
+		.nav-link:hover {
+			color: var(--barbie-gold) !important;
+			background-color: rgba(255, 255, 255, 0.1);
+			border-radius: 8px;
+		}
+
+		/* Dropdown menus */
+		.dropdown-menu {
+			background-color: var(--barbie-white);
+			border: 2px solid var(--barbie-light-pink);
+			border-radius: 12px;
+			box-shadow: 0 8px 25px rgba(233, 30, 99, 0.15);
+			margin-top: 0.5rem;
+		}
+
+		.dropdown-item {
+			color: var(--barbie-dark-pink) !important;
+			font-weight: 500;
+			padding: 0.75rem 1.25rem;
+			transition: all 0.2s ease;
+		}
+
+		.dropdown-item:hover {
+			background-color: var(--barbie-light-pink);
+			color: var(--barbie-pink) !important;
+		}
+
+		/* Main content */
+		main {
+			background-color: rgba(255, 255, 255, 0.95);
+			border-radius: 20px;
+			box-shadow: 0 8px 32px rgba(233, 30, 99, 0.1);
+			margin: 2rem auto;
+			padding: 2rem;
+			backdrop-filter: blur(10px);
+			flex: 1;
+		}
+
+		/* Buttons */
+		.btn-barbie {
+			background: linear-gradient(45deg, var(--barbie-pink), var(--barbie-dark-pink));
+			border: none;
+			color: var(--barbie-white);
+			font-weight: 600;
+			padding: 0.75rem 2rem;
+			border-radius: 25px;
+			transition: all 0.3s ease;
+		}
+
+		.btn-barbie:hover {
+			background: linear-gradient(45deg, var(--barbie-dark-pink), var(--barbie-pink));
+			transform: translateY(-2px);
+			box-shadow: 0 5px 15px rgba(233, 30, 99, 0.3);
+			color: var(--barbie-white);
+		}
+
+		.btn-outline-barbie {
+			border: 2px solid var(--barbie-pink);
+			color: var(--barbie-pink);
+			font-weight: 600;
+			padding: 0.75rem 2rem;
+			border-radius: 25px;
+			background: transparent;
+			transition: all 0.3s ease;
+		}
+
+		.btn-outline-barbie:hover {
+			background-color: var(--barbie-pink);
+			color: var(--barbie-white);
+			transform: translateY(-2px);
+		}
+
+		/* Footer */
+		footer {
+			background: linear-gradient(45deg, var(--barbie-dark-pink), var(--barbie-pink)) !important;
+			box-shadow: 0 -2px 10px rgba(233, 30, 99, 0.2);
+			margin-top: auto;
+		}
+
+		/* Typography */
+		h1, h2, h3, h4, h5, h6 {
+			color: var(--barbie-pink);
+			font-weight: 600;
+		}
+
+		.display-4 {
+			font-weight: 700;
+			text-shadow: 1px 1px 3px rgba(233, 30, 99, 0.1);
+		}
+
+		.lead {
+			color: var(--barbie-dark-pink);
+		}
+
+		/* Responsive */
+		@media (max-width: 768px) {
+			.navbar-brand {
+				font-size: 1.5rem !important;
+			}
+			
+			main {
+				margin: 1rem;
+				padding: 1.5rem;
+			}
+		}
+
+		/* Subtle animations */
+		.fade-in {
+			animation: fadeIn 0.8s ease-in;
+		}
+
+		@keyframes fadeIn {
+			from { opacity: 0; transform: translateY(20px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+	</style>
+	
+	<!-- Custom CSS -->
+	{% block styles %}{% endblock %}
+</head>
+<body>
+	<!-- Navigation -->
+	<nav class="navbar navbar-expand-lg navbar-dark">
+		<div class="container">
+			<a class="navbar-brand" href="/">💖 Barbie World</a>
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarNav">
+				<ul class="navbar-nav me-auto">
+					<li class="nav-item">
+						<a class="nav-link" href="/">Inicio</a>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Personajes
+						</a>
+						<ul class="dropdown-menu">
+							<li><a class="dropdown-item" href="/personajes">Lista</a></li>
+							<li><a class="dropdown-item" href="/personajes/create">Crear</a></li>
+						</ul>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Profesiones
+						</a>
+						<ul class="dropdown-menu">
+							<li><a class="dropdown-item" href="/profesions/create">Crear</a></li>
+						</ul>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="/dashboard">Dashboard</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<!-- Main Content -->
+	<main class="container fade-in">
+		{% block content %}
+			{% endblock %}
+	</main>
+
+	<!-- Footer -->
+	<footer class="text-white text-center py-4">
+		<div class="container">
+			<p class="mb-0">&copy; 2025 Barbie World. Todos los derechos reservados.</p>
+			<small>Hecho con 💖 para un mundo más rosa</small>
+		</div>
+	</footer>
+
+	<!-- Bootstrap JS -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+	
+	<!-- Custom JavaScript -->
+	{% block scripts %}{% endblock %}
+</body>
+</html>

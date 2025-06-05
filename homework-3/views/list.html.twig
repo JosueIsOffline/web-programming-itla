@@ -1,0 +1,520 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="text-center mb-4">
+        <h1 class="display-4">✨ Lista de Personajes ✨</h1>
+        <p class="lead">¡Descubre todos los personajes del mundo mágico de Barbie!</p>
+    </div>
+
+    <!-- Barra de filtros -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-sm" style="border-radius: 20px; background: linear-gradient(135deg, #FFFFFF 0%, #FCE4EC 100%);">
+                <div class="card-body p-4">
+                    <h5 class="card-title text-center mb-3">🔍 Filtros de Búsqueda</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="filtroNombre" class="form-label">
+                                <i class="fas fa-search text-pink me-2"></i>Buscar por nombre
+                            </label>
+                            <input type="text" class="form-control" id="filtroNombre" placeholder="Nombre del personaje...">
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="filtroProfesion" class="form-label">
+                                <i class="fas fa-briefcase text-pink me-2"></i>Filtrar por profesión
+                            </label>
+                            <select class="form-select" id="filtroProfesion">
+                                <option value="">Todas las profesiones</option>
+                                <option value="astronauta">👩‍🚀 Astronauta</option>
+                                <option value="doctora">👩‍⚕️ Doctora</option>
+                                <option value="veterinaria">👩‍⚕️ Veterinaria</option>
+                                <option value="presidenta">👩‍💼 Presidenta</option>
+                                <option value="empresaria">👩‍💼 Empresaria</option>
+                                <option value="maestra">👩‍🏫 Maestra</option>
+                                <option value="cientifica">👩‍🔬 Científica</option>
+                                <option value="ingeniera">👩‍💻 Ingeniera</option>
+                                <option value="piloto">👩‍✈️ Piloto</option>
+                                <option value="chef">👩‍🍳 Chef</option>
+                                <option value="artista">🎨 Artista</option>
+                                <option value="cantante">🎤 Cantante</option>
+                                <option value="bailarina">💃 Bailarina</option>
+                                <option value="modelo">📸 Modelo</option>
+                                <option value="deportista">🏃‍♀️ Deportista</option>
+                                <option value="exploradora">🗺️ Exploradora</option>
+                                <option value="princesa">👸 Princesa</option>
+                                <option value="sirena">🧜‍♀️ Sirena</option>
+                                <option value="hada">🧚‍♀️ Hada</option>
+                                <option value="unicornio">🦄 Entrenadora de Unicornios</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label for="filtroNivel" class="form-label">
+                                <i class="fas fa-star text-pink me-2"></i>Filtrar por nivel
+                            </label>
+                            <select class="form-select" id="filtroNivel">
+                                <option value="">Todos los niveles</option>
+                                <option value="principiante">🌟 Principiante</option>
+                                <option value="intermedio">⭐⭐ Intermedio</option>
+                                <option value="avanzado">⭐⭐⭐ Avanzado</option>
+                         ee    </select>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button type="button" class="btn btn-outline-barbie" onclick="limpiarFiltros()">
+                            <i class="fas fa-eraser me-2"></i>Limpiar Filtros
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas rápidas -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-10">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <div class="card border-0 shadow-sm text-center" style="border-radius: 15px; background: linear-gradient(135deg, #FF69B4, #FF1493);">
+                        <div class="card-body py-3">
+                            <h4 class="text-white mb-1" id="totalPersonajes">0</h4>
+                            <small class="text-white">Total Personajes</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card border-0 shadow-sm text-center" style="border-radius: 15px; background: linear-gradient(135deg, #9C27B0, #7B1FA2);">
+                        <div class="card-body py-3">
+                            <h4 class="text-white mb-1" id="totalProfesiones">0</h4>
+                            <small class="text-white">Profesiones Únicas</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card border-0 shadow-sm text-center" style="border-radius: 15px; background: linear-gradient(135deg, #FF9800, #F57C00);">
+                        <div class="card-body py-3">
+                            <h4 class="text-white mb-1" id="edadPromedio">0</h4>
+                            <small class="text-white">Edad Promedio</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card border-0 shadow-sm text-center" style="border-radius: 15px; background: linear-gradient(135deg, #4CAF50, #45a049);">
+                        <div class="card-body py-3">
+                            <h4 class="text-white mb-1" id="personajesVisibles">0</h4>
+                            <small class="text-white">Mostrando</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="text-center mb-4">
+        <a href="/personajes/create" class="btn btn-barbie btn-lg me-3">
+            <i class="fas fa-plus me-2"></i>Crear Nuevo Personaje
+        </a>
+        <button type="button" class="btn btn-outline-barbie btn-lg" onclick="exportarDatos()">
+            <i class="fas fa-download me-2"></i>Exportar Lista
+        </button>
+    </div>
+
+    <!-- Lista de personajes -->
+    <div class="row justify-content-center">
+        <div class="col-lg-12">
+            <div id="personajesList" class="row">
+                <!-- Los personajes se mostrarán aquí -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensaje cuando no hay personajes -->
+    <div id="noPersonajes" class="text-center" style="display: none;">
+       <div class="card border-0 shadow-sm" style="border-radius: 20px; background: linear-gradient(135deg, #FFFFFF 0%, #FCE4EC 100%);">
+            <div class="card-body py-5">
+                <i class="fas fa-user-friends fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No hay personajes para mostrar</h4>
+                <p class="text-muted mb-4">¡Crea el primer personaje del mundo mágico de Barbie!</p>
+                <a href="/personajes/create" class="btn btn-barbie">
+                    <i class="fas fa-plus me-2"></i>Crear Primer Personaje
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Estilos adicionales específicos para la lista */
+.text-pink {
+    color: var(--barbie-pink) !important;
+}
+
+.form-control, .form-select {
+    border: 2px solid var(--barbie-light-pink);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--barbie-pink);
+    box-shadow: 0 0 0 0.2rem rgba(233, 30, 99, 0.25);
+}
+
+.form-label {
+    color: var(--barbie-dark-pink);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.card {
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.character-card {
+    background: linear-gradient(135deg, #FFFFFF 0%, #FCE4EC 100%);
+    border: 2px solid var(--barbie-light-pink);
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.character-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(233, 30, 99, 0.2);
+}
+
+.character-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.badge-nivel {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+}
+
+.nivel-principiante {
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+    color: white;
+}
+
+.nivel-intermedio {
+    background: linear-gradient(45deg, #FF9800, #F57C00);
+    color: white;
+}
+
+.nivel-avanzado {
+    background: linear-gradient(45deg, #9C27B0, #7B1FA2);
+    color: white;
+}
+
+.personaje-destacado {
+    border: 3px solid var(--barbie-gold) !important;
+    position: relative;
+}
+
+.personaje-destacado::before {
+    content: "⭐ DESTACADO";
+    position: absolute;
+    top: -10px;
+    right: 10px;
+    background: var(--barbie-gold);
+    color: #333;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    z-index: 10;
+}
+
+.character-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 15px;
+}
+</style>
+
+<script>
+
+
+let personajes = {{ personajes|json_encode|raw }};
+let personajesFiltrados = [...personajes];
+
+// Función para mostrar los personajes
+function mostrarPersonajes() {
+    const container = document.getElementById('personajesList');
+    const noPersonajesDiv = document.getElementById('noPersonajes');
+
+   
+    
+    container.innerHTML = '';
+    
+    if (personajesFiltrados.length === 0) {
+        container.style.display = 'none';
+        noPersonajesDiv.style.display = 'block';
+        return;
+    }
+    
+    container.style.display = 'flex';
+    noPersonajesDiv.style.display = 'none';
+    
+    personajesFiltrados.forEach((personaje, index) => {
+        const edad = calcularEdad(personaje.fechaNacimiento);
+        let professions;
+        const getProfessions = personaje.profesiones.map(p => {
+          professions = p.nombre.toLowerCase()
+        })
+        
+        const profesionTexto = obtenerTextoProfesion(professions);
+        const nivelTexto = obtenerTextoNivel(personaje.nivelExperiencia);
+        
+        const personajeCard = `
+            <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                <div class="card character-card h-100 ${personaje.destacado ? 'personaje-destacado' : ''}">
+                    <div class="card-body text-center">
+                        ${personaje.foto ? 
+                            `<img src="${personaje.foto}" alt="Foto de ${personaje.nombre}" class="character-image mb-3">` :
+                            `<div class="character-image mb-3 d-flex align-items-center justify-content-center bg-light">
+                                <i class="fas fa-user fa-4x text-muted"></i>
+                            </div>`
+                        }
+                        <h5 class="card-title">${personaje.nombre} ${personaje.apellido}</h5>
+                        <p class="text-muted mb-2">ID: ${personaje.id}</p>
+                        <p class="mb-2">📅 ${edad} años</p>
+                        <p class="mb-3">${profesionTexto}</p>
+                        <span class="badge badge-nivel nivel-${personaje.nivelExperiencia}">${nivelTexto}</span>
+                        
+                        <div class="character-actions mt-3">
+                            <button class="btn btn-outline-primary btn-sm" onclick="verDetalle(${personaje.id})">
+                                <i class="fas fa-eye"></i> Ver
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm" onclick="editarPersonaje(${personaje.id})">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="eliminarPersonaje(${personaje.id})">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML += personajeCard;
+    });
+    
+    actualizarEstadisticas();
+}
+
+// Función para obtener el texto de la profesión
+function obtenerTextoProfesion(valor) {
+    const opciones = {
+        'astronauta': '👩‍🚀 Astronauta',
+        'doctora': '👩‍⚕️ Doctora',
+        'veterinaria': '👩‍⚕️ Veterinaria',
+        'presidenta': '👩‍💼 Presidenta',
+        'empresaria': '👩‍💼 Empresaria',
+        'maestra': '👩‍🏫 Maestra',
+        'cientifica': '👩‍🔬 Científica',
+        'ingeniera': '👩‍💻 Ingeniera',
+        'piloto': '👩‍✈️ Piloto',
+        'chef': '👩‍🍳 Chef',
+        'artista': '🎨 Artista',
+        'cantante': '🎤 Cantante',
+        'bailarina': '💃 Bailarina',
+        'modelo': '📸 Modelo',
+        'deportista': '🏃‍♀️ Deportista',
+        'exploradora': '🗺️ Exploradora',
+        'princesa': '👸 Princesa',
+        'sirena': '🧜‍♀️ Sirena',
+        'hada': '🧚‍♀️ Hada',
+        'unicornio': '🦄 Entrenadora de Unicornios'
+    };
+    return opciones[valor] || valor;
+}
+
+// Función para obtener el texto del nivel
+function obtenerTextoNivel(valor) {
+    const opciones = {
+        'principiante': '🌟 Principiante',
+        'intermedio': '⭐⭐ Intermedio',
+        'avanzado': '⭐⭐⭐ Avanzado'
+    };
+    return opciones[valor] || valor;
+}
+
+// Función para calcular la edad
+function calcularEdad(fechaNacimiento) {
+    const hoy = new Date();
+    const nacimiento = new Date(fechaNacimiento);
+    let edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const mes = hoy.getMonth() - nacimiento.getMonth();
+    
+    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+        edad--;
+    }
+    
+    return edad;
+}
+
+// Función para filtrar personajes
+function filtrarPersonajes() {
+    const filtroNombre = document.getElementById('filtroNombre').value.toLowerCase();
+    const filtroProfesion = document.getElementById('filtroProfesion').value;
+    const filtroNivel = document.getElementById('filtroNivel').value;
+    
+    personajesFiltrados = personajes.filter(personaje => { 
+        const coincideNombre = !filtroNombre || 
+            (personaje.nombre + ' ' + personaje.apellido).toLowerCase().includes(filtroNombre);
+        const coincideProfesion = !filtroProfesion || personaje.profesiones.some(prof => prof.nombre.toLowerCase() === filtroProfesion);
+        const coincideNivel = !filtroNivel || personaje.nivelExperiencia === filtroNivel;
+        
+        return coincideNombre && coincideProfesion && coincideNivel;
+    });
+    
+    mostrarPersonajes();
+}
+
+// Función para limpiar filtros
+function limpiarFiltros() {
+    document.getElementById('filtroNombre').value = '';
+    document.getElementById('filtroProfesion').value = '';
+    document.getElementById('filtroNivel').value = '';
+    personajesFiltrados = [...personajes];
+    mostrarPersonajes();
+}
+
+// Función para actualizar estadísticas
+function actualizarEstadisticas() {
+    document.getElementById('totalPersonajes').textContent = personajes.length;
+    document.getElementById('personajesVisibles').textContent = personajesFiltrados.length;
+    
+    // Profesiones únicas
+    const profesionesUnicas = new Set(personajes.map(p => p.profesion));
+    document.getElementById('totalProfesiones').textContent = profesionesUnicas.size;
+    
+    // Edad promedio
+    const edadPromedio = personajes.reduce((suma, p) => suma + calcularEdad(p.fechaNacimiento), 0) / personajes.length;
+    document.getElementById('edadPromedio').textContent = Math.round(edadPromedio);
+}
+
+// Funciones de acción
+function verDetalle(id) {
+    const personaje = personajes.find(p => p.id === id);
+    if (personaje) {
+        alert(`Detalle de ${personaje.nombre} ${personaje.apellido}\nProfesión: ${obtenerTextoProfesion(personaje.profesion)}\nNivel: ${obtenerTextoNivel(personaje.nivelExperiencia)}\nEdad: ${calcularEdad(personaje.fechaNacimiento)} años`);
+    }
+}
+
+function editarPersonaje(id) {
+    // Redirigir a la página de edición
+    window.location.href = `/personajes/edit/${id}`;
+}
+
+function eliminarPersonaje(id) {
+    if (confirm('¿Estás segura de que quieres eliminar este personaje?')) {
+        fetch(`/personajes/${id}`, {
+            method: 'DELETE',
+        })
+        .then(response => {
+            if (response.ok) {
+                personajes = personajes.filter(p => p.id !== id);
+                personajesFiltrados = personajes.filter(p => p.id !== id);
+                mostrarPersonajes();
+                 mostrarMensaje({{message | json_encode | raw }}, 'success');
+            } else {
+                throw new Error('No se pudo eliminar el personaje');
+            }
+        })
+        .catch(error => {
+            mostrarMensaje(error.message, 'danger');
+            console.error(error);
+        });
+    }
+}
+
+
+function exportarDatos() {
+    const datos = personajesFiltrados.map(p => ({
+        ID: p.id,
+        Nombre: p.nombre,
+        Apellido: p.apellido,
+        Edad: calcularEdad(p.fechaNacimiento),
+        Profesion: obtenerTextoProfesion(p.profesion),
+        Nivel: obtenerTextoNivel(p.nivelExperiencia)
+    }));
+    
+    const csv = convertirACSV(datos);
+    descargarCSV(csv, 'personajes-barbie.csv');
+}
+
+function convertirACSV(datos) {
+    const headers = Object.keys(datos[0]);
+    const filas = datos.map(fila => headers.map(header => fila[header]).join(','));
+    return [headers.join(','), ...filas].join('\n');
+}
+
+function descargarCSV(contenido, nombreArchivo) {
+    const blob = new Blob([contenido], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nombreArchivo;
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
+// Función para mostrar mensajes
+function mostrarMensaje(mensaje, tipo) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${tipo} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+    alertDiv.innerHTML = `
+        ${mensaje}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.parentNode.removeChild(alertDiv);
+        }
+    }, 5000);
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Mostrar personajes inicialmente
+    mostrarPersonajes();
+    
+    // Configurar filtros en tiempo real
+    document.getElementById('filtroNombre').addEventListener('input', filtrarPersonajes);
+    document.getElementById('filtroProfesion').addEventListener('change', filtrarPersonajes);
+    document.getElementById('filtroNivel').addEventListener('change', filtrarPersonajes);
+});
+</script>
+
+<!-- Font Awesome para los iconos -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}

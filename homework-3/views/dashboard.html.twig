@@ -1,0 +1,775 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="text-center mb-4">
+        <h1 class="display-4">📊 Panel de Estadísticas</h1>
+        <p class="lead">¡Descubre las estadísticas del mundo mágico de Barbie!</p>
+    </div>
+
+    <!-- Estadísticas principales -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card stats-card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #FF69B4, #FF1493);">
+                <div class="card-body text-center text-white">
+                    <i class="fas fa-users fa-3x mb-3"></i>
+                    <h2 class="mb-1" id="totalPersonajes">0</h2>
+                    <p class="mb-0">Total Personajes</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card stats-card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #9C27B0, #7B1FA2);">
+                <div class="card-body text-center text-white">
+                    <i class="fas fa-briefcase fa-3x mb-3"></i>
+                    <h2 class="mb-1" id="totalProfesiones">0</h2>
+                    <p class="mb-0">Total Profesiones</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card stats-card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #FF9800, #F57C00);">
+                <div class="card-body text-center text-white">
+                    <i class="fas fa-birthday-cake fa-3x mb-3"></i>
+                    <h2 class="mb-1" id="edadPromedio">0</h2>
+                    <p class="mb-0">Edad Promedio</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card stats-card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #4CAF50, #45a049);">
+                <div class="card-body text-center text-white">
+                    <i class="fas fa-dollar-sign fa-3x mb-3"></i>
+                    <h2 class="mb-1" id="salarioPromedio">$0</h2>
+                    <p class="mb-0">Salario Promedio</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas detalladas -->
+    <div class="row mb-4">
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 20px; background: linear-gradient(135deg, #FFFFFF 0%, #FCE4EC 100%);">
+                <div class="card-body">
+                    <h5 class="card-title text-center mb-3">
+                        <i class="fas fa-star text-pink me-2"></i>Nivel Más Común
+                    </h5>
+                    <div class="text-center">
+                        <div class="display-6" id="nivelMasComun">-</div>
+                        <small class="text-muted" id="nivelMasComunCount">0 personajes</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 20px; background: linear-gradient(135deg, #FFFFFF 0%, #E8F5E8 100%);">
+                <div class="card-body">
+                    <h5 class="card-title text-center mb-3">
+                        <i class="fas fa-arrow-up text-success me-2"></i>Salario Más Alto
+                    </h5>
+                    <div class="text-center">
+                        <div class="h4" id="profesionSalarioAlto">-</div>
+                        <div class="h5 text-success" id="salarioAlto">$0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 20px; background: linear-gradient(135deg, #FFFFFF 0%, #FFF3E0 100%);">
+                <div class="card-body">
+                    <h5 class="card-title text-center mb-3">
+                        <i class="fas fa-arrow-down text-warning me-2"></i>Salario Más Bajo
+                    </h5>
+                    <div class="text-center">
+                        <div class="h4" id="profesionSalarioBajo">-</div>
+                        <div class="h5 text-warning" id="salarioBajo">$0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personaje destacado -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="border-radius: 20px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-crown me-2"></i>Personaje con Mayor Salario
+                    </h5>
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <div class="character-avatar mx-auto mb-3">
+                                <i class="fas fa-user-crown fa-4x text-white"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <h3 class="text-white mb-2" id="personajeMayorSalario">-</h3>
+                            <p class="text-white mb-2" id="profesionMayorSalario">-</p>
+                            <h4 class="text-white" id="mayorSalario">$0</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 20px;">
+                <div class="card-body">
+                    <h5 class="card-title text-center mb-4">
+                        <i class="fas fa-chart-pie text-pink me-2"></i>Distribución por Categoría
+                    </h5>
+                    <canvas id="categoriasChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 20px;">
+                <div class="card-body">
+                    <h5 class="card-title text-center mb-4">
+                        <i class="fas fa-chart-bar text-pink me-2"></i>Niveles de Experiencia
+                    </h5>
+                    <canvas id="nivelesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+                <div class="card-body">
+                    <h5 class="card-title text-center mb-4">
+                        <i class="fas fa-chart-bar text-pink me-2"></i>Salarios por Categoría de Profesión
+                    </h5>
+                    <canvas id="salariosChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 20px;">
+                <div class="card-body">
+                    <h5 class="card-title text-center mb-4">
+                        <i class="fas fa-chart-line text-pink me-2"></i>Top 5 Profesiones por Salario
+                    </h5>
+                    <canvas id="topProfesionesChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 20px;">
+                <div class="card-body">
+                    <h5 class="card-title text-center mb-4">
+                        <i class="fas fa-chart-area text-pink me-2"></i>Distribución de Edades
+                    </h5>
+                    <canvas id="edadesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de resumen -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+                <div class="card-body">
+                    <h5 class="card-title text-center mb-4">
+                        <i class="fas fa-table text-pink me-2"></i>Resumen por Categorías
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-barbie">
+                                <tr>
+                                    <th>Categoría</th>
+                                    <th>Cantidad</th>
+                                    <th>Salario Promedio</th>
+                                    <th>Porcentaje</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resumenTabla">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+:root {
+    --barbie-pink: #FF69B4;
+    --barbie-purple: #9C27B0;
+}
+
+.text-pink {
+    color: var(--barbie-pink) !important;
+}
+
+.stats-card {
+    border-radius: 20px;
+    transition: transform 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+}
+
+.character-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.table-barbie {
+    background: linear-gradient(135deg, var(--barbie-pink), var(--barbie-purple));
+    color: white;
+}
+
+.table-barbie th {
+    border: none;
+    font-weight: 600;
+}
+
+.fade-in {
+    animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive charts */
+canvas {
+    max-height: 400px;
+}
+
+@media (max-width: 768px) {
+    canvas {
+        max-height: 300px;
+    }
+}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+const personajes = {{personajes|json_encode|raw}};
+
+// Variables para los gráficos
+let categoriasChart, nivelesChart, salariosChart, topProfesionesChart, edadesChart;
+
+// Colores para los gráficos
+const colores = [
+    '#FF69B4', '#9C27B0', '#FF9800', '#4CAF50', '#2196F3',
+    '#FF5722', '#795548', '#607D8B', '#E91E63', '#3F51B5'
+];
+
+// Función para calcular edad
+function calcularEdad(fechaNacimiento) {
+    const hoy = new Date();
+    const nacimiento = new Date(fechaNacimiento);
+    let edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const mes = hoy.getMonth() - nacimiento.getMonth();
+    
+    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+        edad--;
+    }
+    
+    return edad;
+}
+
+// Función para actualizar estadísticas principales
+function actualizarEstadisticasPrincipales() {
+    // Total personajes
+    document.getElementById('totalPersonajes').textContent = personajes.length;
+    
+    // Total profesiones únicas
+    const profesionesUnicas = new Set(
+      personajes.flatMap((p) => p.profesiones.map((prof) => prof.nombre))
+    );
+
+    document.getElementById('totalProfesiones').textContent = profesionesUnicas.size;
+
+    
+    // Edad promedio
+    const edadPromedio = personajes.reduce((suma, p) => suma + calcularEdad(p.fechaNacimiento), 0) / personajes.length;
+    document.getElementById('edadPromedio').textContent = Math.round(edadPromedio);
+    
+    // Salario promedio
+    const salarioPromedio = personajes.reduce((suma, p) => suma + p.profesiones[0].salario, 0) / personajes.length;
+    console.log(salarioPromedio)
+    document.getElementById('salarioPromedio').textContent = '$' + salarioPromedio.toLocaleString();
+}
+
+// Función para actualizar estadísticas detalladas
+function actualizarEstadisticasDetalladas() {
+    // Nivel más común
+    const niveles = {};
+    personajes.forEach(p => {
+        niveles[p.nivelExperiencia] = (niveles[p.nivelExperiencia] || 0) + 1;
+    });
+    
+    const nivelMasComun = Object.keys(niveles).reduce((a, b) => niveles[a] > niveles[b] ? a : b);
+    const textoNivel = nivelMasComun === 'principiante' ? '🌟 Principiante' : 
+                      nivelMasComun === 'intermedio' ? '⭐⭐ Intermedio' : '⭐⭐⭐ Avanzado';
+    
+    document.getElementById('nivelMasComun').textContent = textoNivel;
+    document.getElementById('nivelMasComunCount').textContent = niveles[nivelMasComun] + ' personajes';
+    
+    // Salarios por profesión
+    const salariosPorProfesion = {};
+    personajes.forEach(p => {
+        if (!salariosPorProfesion[p.profesiones[0].nombre]) {
+            salariosPorProfesion[p.profesiones[0].nombre] = [];
+        }
+        salariosPorProfesion[p.profesiones[0].nombre].push(p.profesiones[0].salario);
+    });
+    
+    // Calcular promedios por profesión
+    const promediosPorProfesion = {};
+    Object.keys(salariosPorProfesion).forEach(profesion => {
+        const salarios = salariosPorProfesion[profesion];
+        promediosPorProfesion[profesion] = salarios.reduce((a, b) => a + b, 0) / salarios.length;
+    });
+    
+    // Profesión con salario más alto
+    const profesionSalarioAlto = Object.keys(promediosPorProfesion).reduce((a, b) => 
+        promediosPorProfesion[a] > promediosPorProfesion[b] ? a : b);
+    
+    document.getElementById('profesionSalarioAlto').textContent = obtenerTextoProfesion(profesionSalarioAlto);
+    document.getElementById('salarioAlto').textContent = '$' + Math.round(promediosPorProfesion[profesionSalarioAlto]).toLocaleString();
+    
+    // Profesión con salario más bajo
+    const profesionSalarioBajo = Object.keys(promediosPorProfesion).reduce((a, b) => 
+        promediosPorProfesion[a] < promediosPorProfesion[b] ? a : b);
+    
+    document.getElementById('profesionSalarioBajo').textContent = obtenerTextoProfesion(profesionSalarioBajo);
+    document.getElementById('salarioBajo').textContent = '$' + Math.round(promediosPorProfesion[profesionSalarioBajo]).toLocaleString();
+    
+    // Personaje con mayor salario
+    const personajeMayorSalario = personajes.reduce((max, p) => p.profesiones[0].salario > max.profesiones[0].salario ? p : max);
+    document.getElementById('personajeMayorSalario').textContent = personajeMayorSalario.nombre + ' ' + personajeMayorSalario.apellido;
+    document.getElementById('profesionMayorSalario').textContent = obtenerTextoProfesion(personajeMayorSalario.profesion);
+    document.getElementById('mayorSalario').textContent = '$' + personajeMayorSalario.profesiones[0].salario.toLocaleString();
+}
+
+// Función para obtener texto de profesión
+function obtenerTextoProfesion(valor) {
+    const opciones = {
+        'astronauta': '👩‍🚀 Astronauta',
+        'doctora': '👩‍⚕️ Doctora',
+        'veterinaria': '👩‍⚕️ Veterinaria',
+        'presidenta': '👩‍💼 Presidenta',
+        'empresaria': '👩‍💼 Empresaria',
+        'maestra': '👩‍🏫 Maestra',
+        'cientifica': '👩‍🔬 Científica',
+        'ingeniera': '👩‍💻 Ingeniera',
+        'piloto': '👩‍✈️ Piloto',
+        'chef': '👩‍🍳 Chef',
+        'artista': '🎨 Artista',
+        'cantante': '🎤 Cantante',
+        'bailarina': '💃 Bailarina',
+        'modelo': '📸 Modelo',
+        'deportista': '🏃‍♀️ Deportista',
+        'exploradora': '🗺️ Exploradora',
+        'princesa': '👸 Princesa',
+        'sirena': '🧜‍♀️ Sirena',
+        'hada': '🧚‍♀️ Hada',
+        'unicornio': '🦄 Entrenadora de Unicornios'
+    };
+    return opciones[valor] || valor;
+}
+
+// Función para crear gráfico de distribución por categorías
+function crearGraficoCategorias() {
+    const ctx = document.getElementById('categoriasChart').getContext('2d');
+    
+    // Contar por categorías
+    const categorias = {};
+    personajes.forEach(p => {
+        categorias[p.profesiones[0].categoria] = (categorias[p.profesiones[0].categoria] || 0) + 1;
+    });
+
+    
+    categoriasChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(categorias),
+            datasets: [{
+                data: Object.values(categorias),
+                backgroundColor: colores.slice(0, Object.keys(categorias).length),
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// Función para crear gráfico de niveles de experiencia
+function crearGraficoNiveles() {
+    const ctx = document.getElementById('nivelesChart').getContext('2d');
+    
+    const niveles = {};
+    personajes.forEach(p => {
+        niveles[p.nivelExperiencia] = (niveles[p.nivelExperiencia] || 0) + 1;
+    });
+    
+    nivelesChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['🌟 Principiante', '⭐⭐ Intermedio', '⭐⭐⭐ Avanzado'],
+            datasets: [{
+                label: 'Cantidad de Personajes',
+                data: [
+                    niveles.principiante || 0,
+                    niveles.intermedio || 0,
+                    niveles.avanzado || 0
+                ],
+                backgroundColor: ['#4CAF50', '#FF9800', '#9C27B0'],
+                borderColor: ['#45a049', '#F57C00', '#7B1FA2'],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Función para crear gráfico de salarios por categoría
+function crearGraficoSalarios() {
+    const ctx = document.getElementById('salariosChart').getContext('2d');
+    
+    // Calcular salario promedio por categoría
+    const salariosCategoria = {};
+    const conteoCategoria = {};
+    
+    personajes.forEach(p => {
+        if (!salariosCategoria[p.profesiones[0].categoria]) {
+            salariosCategoria[p.profesiones[0].categoria] = 0;
+            conteoCategoria[p.profesiones[0].categoria] = 0;
+        }
+        salariosCategoria[p.profesiones[0].categoria] += p.profesiones[0].salario;
+        conteoCategoria[p.profesiones[0].categoria]++;
+    });
+    
+    // Calcular promedios
+    const promedios = {};
+    Object.keys(salariosCategoria).forEach(categoria => {
+        promedios[categoria] = salariosCategoria[categoria] / conteoCategoria[categoria];
+    });
+    
+    salariosChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(promedios),
+            datasets: [{
+                label: 'Salario Promedio ($)',
+                data: Object.values(promedios),
+                backgroundColor: colores.slice(0, Object.keys(promedios).length),
+                borderColor: colores.slice(0, Object.keys(promedios).length).map(color => color + 'CC'),
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Función para crear gráfico de top profesiones
+function crearGraficoTopProfesiones() {
+    const ctx = document.getElementById('topProfesionesChart').getContext('2d');
+
+    const salariosPorProfesion = {};
+    const conteoPorProfesion = {};
+
+    personajes.forEach(p => {
+        p.profesiones.forEach(prof => {
+            const nombre = prof.nombre;
+            if (!salariosPorProfesion[nombre]) {
+                salariosPorProfesion[nombre] = 0;
+                conteoPorProfesion[nombre] = 0;
+            }
+            salariosPorProfesion[nombre] += prof.salario;
+            conteoPorProfesion[nombre]++;
+        });
+    });
+
+    const promediosProfesion = {};
+    Object.keys(salariosPorProfesion).forEach(profesion => {
+        promediosProfesion[profesion] = salariosPorProfesion[profesion] / conteoPorProfesion[profesion];
+    });
+
+    const topProfesiones = Object.entries(promediosProfesion)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 5);
+
+    new Chart(ctx, {
+        type: 'bar', // mejor usar 'bar' que 'horizontalBar' en Chart.js v3+
+        data: {
+            labels: topProfesiones.map(([prof]) => obtenerTextoProfesion(prof)),
+            datasets: [{
+                label: 'Salario Promedio ($)',
+                data: topProfesiones.map(([, salario]) => salario),
+                backgroundColor: colores.slice(0, 5),
+                borderColor: colores.slice(0, 5).map(c => c + 'CC'),
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: { // eje y para gráfico de barras vertical
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => '$' + value.toLocaleString()
+                    }
+                }
+            }
+        }
+    });
+}
+
+
+// Función para crear gráfico de distribución de edades
+function crearGraficoEdades() {
+    const ctx = document.getElementById('edadesChart').getContext('2d');
+    
+    // Agrupar por rangos de edad
+    const rangosEdad = {
+        '20-30': 0,
+        '31-40': 0,
+        '41-50': 0,
+        '51-60': 0,
+        '60+': 0
+    };
+    
+    personajes.forEach(p => {
+        const edad = calcularEdad(p.fechaNacimiento);
+        if (edad <= 30) rangosEdad['20-30']++;
+        else if (edad <= 40) rangosEdad['31-40']++;
+        else if (edad <= 50) rangosEdad['41-50']++;
+        else if (edad <= 60) rangosEdad['51-60']++;
+        else rangosEdad['60+']++;
+    });
+    
+    edadesChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: Object.keys(rangosEdad),
+            datasets: [{
+                label: 'Distribución de Edades',
+                data: Object.values(rangosEdad),
+                backgroundColor: 'rgba(255, 105, 180, 0.2)',
+                borderColor: '#FF69B4',
+                borderWidth: 2,
+                pointBackgroundColor: '#FF69B4',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#FF69B4'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Función para crear tabla de resumen
+function crearTablaResumen() {
+    const tbody = document.getElementById('resumenTabla');
+    tbody.innerHTML = '';
+    
+    // Calcular datos por categoría
+    const datosCategoria = {};
+    const totalPersonajes = personajes.length;
+    
+    personajes.forEach(p => {
+        if (!datosCategoria[p.profesiones[0].categoria]) {
+            datosCategoria[p.profesiones[0].categoria] = {
+                cantidad: 0,
+                salarioTotal: 0
+            };
+        }
+        datosCategoria[p.profesiones[0].categoria].cantidad++;
+        datosCategoria[p.profesiones[0].categoria].salarioTotal += p.profesiones[0].salario;
+    });
+
+    console.log(datosCategoria)
+    
+    // Crear filas de la tabla
+    Object.keys(datosCategoria).forEach(categoria => {
+        const datos = datosCategoria[categoria];
+        const salarioPromedio = datos.salarioTotal / datos.cantidad;
+        const porcentaje = (datos.cantidad / totalPersonajes * 100).toFixed(1);
+        
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+            <td><strong>${categoria}</strong></td>
+            <td><span class="badge bg-info">${datos.cantidad}</span></td>
+            <td><span class="text-success">$${Math.round(salarioPromedio).toLocaleString()}</span></td>
+            <td>
+                <div class="progress" style="height: 20px;">
+                    <div class="progress-bar bg-pink" style="width: ${porcentaje}%; background-color: var(--barbie-pink)!important;">
+                        ${porcentaje}%
+                    </div>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(fila);
+    });
+}
+
+// Función para animar los números
+function animarNumeros() {
+    const elementos = [
+        { id: 'totalPersonajes', valor: personajes.length },
+        { id: 'totalProfesiones', valor: new Set(personajes.map(p => p.profesiones[0].nombre)).size },
+        { id: 'edadPromedio', valor: Math.round(personajes.reduce((suma, p) => suma + calcularEdad(p.fechaNacimiento), 0) / personajes.length) }
+    ];
+    
+    elementos.forEach(elemento => {
+        const el = document.getElementById(elemento.id);
+        let contador = 0;
+        const incremento = elemento.valor / 30;
+        
+        const intervalo = setInterval(() => {
+            contador += incremento;
+            if (contador >= elemento.valor) {
+                contador = elemento.valor;
+                clearInterval(intervalo);
+            }
+            el.textContent = Math.floor(contador);
+        }, 50);
+    });
+}
+
+// Función para destruir gráficos existentes
+function destruirGraficos() {
+    if (categoriasChart) categoriasChart.destroy();
+    if (nivelesChart) nivelesChart.destroy();
+    if (salariosChart) salariosChart.destroy();
+    if (topProfesionesChart) topProfesionesChart.destroy();
+    if (edadesChart) edadesChart.destroy();
+}
+
+// Función principal de inicialización
+function inicializarDashboard() {
+    // Destruir gráficos existentes si los hay
+    destruirGraficos();
+    
+    // Actualizar estadísticas
+    actualizarEstadisticasPrincipales();
+    actualizarEstadisticasDetalladas();
+    
+    // Crear gráficos
+    setTimeout(() => {
+        crearGraficoCategorias();
+        crearGraficoNiveles();
+        crearGraficoSalarios();
+        crearGraficoTopProfesiones();
+        crearGraficoEdades();
+        crearTablaResumen();
+    }, 500);
+    
+    // Animar números
+    setTimeout(animarNumeros, 1000);
+}
+
+// Inicializar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    inicializarDashboard();
+});
+
+// Reinicializar en cambio de tamaño de ventana para responsividad
+window.addEventListener('resize', function() {
+    setTimeout(inicializarDashboard, 200);
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,107 @@
+[
+    {
+        "nombre": "Astronauta",
+        "categoria": "Ciencia",
+        "salario": 5000
+    },
+    {
+        "nombre": "Doctora",
+        "categoria": "Salud",
+        "salario": 3500
+    },
+    {
+        "nombre": "Veterinaria",
+        "categoria": "Salud",
+        "salario": 2800
+    },
+    {
+        "nombre": "Presidenta",
+        "categoria": "Gobierno",
+        "salario": 7000
+    },
+    {
+        "nombre": "Empresaria",
+        "categoria": "Negocios",
+        "salario": 4000
+    },
+    {
+        "nombre": "Maestra",
+        "categoria": "Educaci\u00f3n",
+        "salario": 2200
+    },
+    {
+        "nombre": "Cient\u00edfica",
+        "categoria": "Ciencia",
+        "salario": 3200
+    },
+    {
+        "nombre": "Ingeniera",
+        "categoria": "Tecnolog\u00eda",
+        "salario": 3400
+    },
+    {
+        "nombre": "Piloto",
+        "categoria": "Transporte",
+        "salario": 3600
+    },
+    {
+        "nombre": "Chef",
+        "categoria": "Servicios",
+        "salario": 2500
+    },
+    {
+        "nombre": "Artista",
+        "categoria": "Creatividad",
+        "salario": 2300
+    },
+    {
+        "nombre": "Cantante",
+        "categoria": "Entretenimiento",
+        "salario": 3000
+    },
+    {
+        "nombre": "Bailarina",
+        "categoria": "Arte",
+        "salario": 2100
+    },
+    {
+        "nombre": "Modelo",
+        "categoria": "Moda",
+        "salario": 2800
+    },
+    {
+        "nombre": "Deportista",
+        "categoria": "Deporte",
+        "salario": 2900
+    },
+    {
+        "nombre": "Exploradora",
+        "categoria": "Aventura",
+        "salario": 2400
+    },
+    {
+        "nombre": "Princesa",
+        "categoria": "Realeza",
+        "salario": 0
+    },
+    {
+        "nombre": "Sirena",
+        "categoria": "Fantas\u00eda",
+        "salario": 0
+    },
+    {
+        "nombre": "Hada",
+        "categoria": "Fantas\u00eda",
+        "salario": 0
+    },
+    {
+        "nombre": "Entrenadora de Unicornios",
+        "categoria": "Fantas\u00eda",
+        "salario": 0
+    },
+    {
+        "nombre": "Programadora",
+        "categoria": "tecnologia",
+        "salario": 1000000000
+    }
+]

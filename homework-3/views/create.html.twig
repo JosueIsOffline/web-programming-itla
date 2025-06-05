@@ -1,0 +1,227 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="text-center mb-4">
+        <h1 class="display-4">✨ Crear Personaje ✨</h1>
+        <p class="lead">¡Agrega un nuevo personaje al mundo mágico de Barbie!</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <form id="characterForm" action="/personajes" method="POST">
+                <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px; background: linear-gradient(135deg, #FFFFFF 0%, #FCE4EC 100%);">
+                    <div class="card-body p-4">
+                        <h3 class="card-title text-center mb-4">💖 Información Personal</h3> 
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nombre" class="form-label">
+                                    <i class="fas fa-user text-pink me-2"></i>Nombre *
+                                </label>
+                                <input type="text" class="form-control" id="nombre" name="nombre" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="apellido" class="form-label">
+                                    <i class="fas fa-user text-pink me-2"></i>Apellido *
+                                </label>
+                                <input type="text" class="form-control" id="apellido" name="apellido" required>
+                            </div>
+                        </div>
+
+                          
+                        <div class="row"> 
+                            <div class="col-md-6 mb-3">
+                                <label for="fechaNacimiento" class="form-label">
+                                    <i class="fas fa-birthday-cake text-pink me-2"></i>Fecha de Nacimiento *
+                                </label>
+                                <input type="date" class="form-control" id="fechaNacimiento" name="fechaNacimiento" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="foto" class="form-label">
+                                <i class="fas fa-camera text-pink me-2"></i>Foto del Personaje
+                            </label>
+                            <input type="text" class="form-control" id="foto" name="foto">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px; background: linear-gradient(135deg, #FFFFFF 0%, #FCE4EC 100%);">
+                    <div class="card-body p-4">
+                        <h3 class="card-title text-center mb-4">👑 Información Profesional</h3> 
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="profesion" class="form-label">
+                                    <i class="fas fa-briefcase text-pink me-2"></i>Profesión o Rol *
+                                </label>
+                                <select class="form-select" id="profesion" name="profesiones[]" required>
+                                <option value="">Selecciona una profesión...</option>
+                                <option value="astronauta">👩‍🚀 Astronauta</option>
+                                <option value="doctora">👩‍⚕️ Doctora</option>
+                                <option value="veterinaria">👩‍⚕️ Veterinaria</option>
+                                <option value="presidenta">👩‍💼 Presidenta</option>
+                                <option value="empresaria">👩‍💼 Empresaria</option>
+                                <option value="maestra">👩‍🏫 Maestra</option>
+                                <option value="cientifica">👩‍🔬 Científica</option>
+                                <option value="ingeniera">👩‍💻 Ingeniera</option>
+                                <option value="piloto">👩‍✈️ Piloto</option>
+                                <option value="chef">👩‍🍳 Chef</option>
+                                    <option value="artista">🎨 Artista</option>
+                                    <option value="cantante">🎤 Cantante</option>
+                                    <option value="bailarina">💃 Bailarina</option>
+                                    <option value="modelo">📸 Modelo</option>
+                                    <option value="deportista">🏃‍♀️ Deportista</option>
+                                    <option value="exploradora">🗺️ Exploradora</option>
+                                    <option value="princesa">👸 Princesa</option>
+                                    <option value="sirena">🧜‍♀️ Sirena</option>
+                                    <option value="hada">🧚‍♀️ Hada</option>
+                                    <option value="unicornio">🦄 Entrenadora de Unicornios</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="nivelExperiencia" class="form-label">
+                                    <i class="fas fa-star text-pink me-2"></i>Nivel de Experiencia *
+                                </label>
+                                <select class="form-select" id="nivelExperiencia" name="nivelExperiencia" required>
+                                    <option value="">Selecciona el nivel...</option>
+                                    <option value="principiante">🌟 Principiante</option>
+                                    <option value="intermedio">⭐⭐ Intermedio</option>
+                                    <option value="avanzado">⭐⭐⭐ Avanzado</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mb-3">
+                    <button type="submit" class="btn btn-barbie btn-lg me-3">
+                        <i class="fas fa-plus me-2"></i>Crear Personaje
+                    </button>
+                    <button type="button" class="btn btn-outline-barbie btn-lg" onclick="limpiarFormulario()">
+                        <i class="fas fa-eraser me-2"></i>Limpiar Formulario
+                    </button>
+                </div>
+            </form>
+                {% if message is defined and message %}
+                  <div id="mensaje-exito" class="alert alert-success text-center mt-4" role="alert">
+                      {{ message }}
+                  </div>
+                  <script>
+                    setTimeout(() => {
+                      const mensaje = document.getElementById('mensaje-exito');
+                      if (mensaje) mensaje.style.display = 'none';
+                    }, 4000);
+                 </script>
+              {% endif %}
+        </div>
+    </div>
+
+</div>
+
+<style>
+/* Estilos adicionales específicos para el formulario */
+.text-pink {
+    color: var(--barbie-pink) !important;
+}
+
+.form-control, .form-select {
+    border: 2px solid var(--barbie-light-pink);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--barbie-pink);
+    box-shadow: 0 0 0 0.2rem rgba(233, 30, 99, 0.25);
+}
+
+.form-label {
+    color: var(--barbie-dark-pink);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.card {
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.character-card {
+    background: linear-gradient(135deg, #FFFFFF 0%, #FCE4EC 100%);
+    border: 2px solid var(--barbie-light-pink);
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.character-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(233, 30, 99, 0.2);
+}
+
+.character-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.badge-nivel {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+}
+
+.nivel-principiante {
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+    color: white;
+}
+
+.nivel-intermedio {
+    background: linear-gradient(45deg, #FF9800, #F57C00);
+    color: white;
+}
+
+.nivel-avanzado {
+    background: linear-gradient(45deg, #9C27B0, #7B1FA2);
+    color: white;
+}
+</style>
+
+
+
+<script>
+
+// Función para calcular la edad
+function calcularEdad(fechaNacimiento) {
+    const hoy = new Date();
+    const nacimiento = new Date(fechaNacimiento);
+    let edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const mes = hoy.getMonth() - nacimiento.getMonth();
+    
+    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+        edad--;
+    }
+    
+    return edad;
+}
+
+// Función para limpiar el formulario
+function limpiarFormulario() {
+    document.getElementById('characterForm').reset();
+}
+
+
+</script>
+
+<!-- Font Awesome para los iconos -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}

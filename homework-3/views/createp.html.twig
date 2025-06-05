@@ -1,0 +1,346 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="text-center mb-4">
+        <h1 class="display-4">💼 Crear Profesión ✨</h1>
+        <p class="lead">¡Agrega una nueva profesión al mundo mágico de Barbie!</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <form id="professionForm" action="/profesions" method="POST">
+                <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px; background: linear-gradient(135deg, #FFFFFF 0%, #FCE4EC 100%);">
+                    <div class="card-body p-4">
+                        <h3 class="card-title text-center mb-4">👑 Nueva Profesión</h3> 
+
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">
+                                <i class="fas fa-briefcase text-pink me-2"></i>Nombre de la Profesión *
+                            </label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" placeholder="ej: Doctora Veterinaria" required>
+                        </div>
+
+                            
+                        <div class="mb-3">
+                            <label for="categoria" class="form-label">
+                                <i class="fas fa-tags text-pink me-2"></i>Categoría *
+                            </label>
+                            <select class="form-select" id="categoria" name="categoria" required>
+                                <option value="">Selecciona una categoría...</option>
+                                <option value="salud">🏥 Salud y Medicina</option>
+                                <option value="educacion">🎓 Educación</option>
+                                <option value="tecnologia">💻 Tecnología</option>
+                                <option value="ciencia">🔬 Ciencia e Investigación</option>
+                                <option value="negocios">💼 Negocios y Liderazgo</option>
+                                <option value="arte">🎨 Arte y Creatividad</option>
+                                <option value="deportes">🏃‍♀️ Deportes y Fitness</option>
+                                <option value="aventura">🗺️ Aventura y Exploración</option>
+                                <option value="fantasia">🦄 Fantasía y Magia</option>
+                                <option value="servicio">🤝 Servicio y Comunidad</option>
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="salarioMin" class="form-label">
+                                    <i class="fas fa-dollar-sign text-pink me-2"></i>Salario (Barbie Coins)
+                                </label>
+                                <input type="number" class="form-control" id="salarioMin" name="salario" placeholder="1000">
+                            </div>
+                        </div> 
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-barbie btn-lg me-3">
+                        <i class="fas fa-plus me-2"></i>Crear Profesión
+                    </button>
+                    <button type="button" class="btn btn-outline-barbie btn-lg" onclick="limpiarFormulario()">
+                        <i class="fas fa-eraser me-2"></i>Limpiar Formulario
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de profesiones creadas -->
+    <div class="mt-5">
+        <h2 class="text-center mb-4">💼 Profesiones Disponibles</h2>
+        
+        <!-- Filtros -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" class="form-control" id="buscarProfesion" placeholder="Buscar profesión...">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" id="filtrarCategoria">
+                    <option value="">Todas las categorías</option>
+                    <option value="salud">🏥 Salud y Medicina</option>
+                    <option value="educacion">🎓 Educación</option>
+                    <option value="tecnologia">💻 Tecnología</option>
+                    <option value="ciencia">🔬 Ciencia e Investigación</option>
+                    <option value="negocios">💼 Negocios y Liderazgo</option>
+                    <option value="arte">🎨 Arte y Creatividad</option>
+                    <option value="deportes">🏃‍♀️ Deportes y Fitness</option>
+                    <option value="aventura">🗺️ Aventura y Exploración</option>
+                    <option value="fantasia">🦄 Fantasía y Magia</option>
+                    <option value="servicio">🤝 Servicio y Comunidad</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="profesionesList" class="row">
+            <!-- Las profesiones se mostrarán aquí -->
+        </div>
+    </div>
+</div>
+
+<style>
+/* Estilos adicionales específicos para el formulario */
+.text-pink {
+    color: var(--barbie-pink) !important;
+}
+
+.form-control, .form-select {
+    border: 2px solid var(--barbie-light-pink);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--barbie-pink);
+    box-shadow: 0 0 0 0.2rem rgba(233, 30, 99, 0.25);
+}
+
+.form-label {
+    color: var(--barbie-dark-pink);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.card {
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.profession-card {
+    background: linear-gradient(135deg, #FFFFFF 0%, #FCE4EC 100%);
+    border: 2px solid var(--barbie-light-pink);
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.profession-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(233, 30, 99, 0.2);
+}
+
+.category-badge {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    background: linear-gradient(45deg, var(--barbie-pink), var(--barbie-dark-pink));
+    color: white;
+    font-weight: 500;
+}
+
+.salary-range {
+    background: linear-gradient(45deg, var(--barbie-gold), #FFA000);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.profession-emoji {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+</style>
+
+<script>
+let profesiones = {{profesiones|json_encode|raw}};
+
+
+
+function obtenerEmojiProfesion(valor) {
+    const opciones = {
+        'astronauta': '👩‍🚀',
+        'doctora': '👩‍⚕️',
+        'veterinaria': '👩‍⚕️',
+        'presidenta': '👩‍💼',
+        'empresaria': '👩‍💼',
+        'maestra': '👩‍🏫',
+        'cientifica': '👩‍🔬',
+        'ingeniera': '👩‍💻',
+        'piloto': '👩‍✈️',
+        'chef': '👩‍🍳',
+        'artista': '🎨',
+        'cantante': '🎤 ',
+        'bailarina': '💃',
+        'modelo': '📸 ',
+        'deportista': '🏃‍♀️',
+        'exploradora': '🗺️',
+        'princesa': '👸',
+        'sirena': '🧜‍♀️',
+        'hada': '🧚‍♀️ ',
+        'entrenadora de unicornios': '🦄 '
+    };
+    return opciones[valor] || valor;
+}
+
+// Función para mostrar las profesiones
+function mostrarProfesiones() {
+    const container = document.getElementById('profesionesList');
+    let profesionesFiltradas = [...profesiones];
+    console.log(profesionesFiltradas)
+    
+    // Aplicar filtros
+    const busqueda = document.getElementById('buscarProfesion').value.toLowerCase();
+    const categoriaFiltro = document.getElementById('filtrarCategoria').value;
+    
+    if (busqueda) {
+        profesionesFiltradas = profesionesFiltradas.filter(prof => 
+            prof.nombre.toLowerCase().includes(busqueda) 
+        );
+    }
+    
+    if (categoriaFiltro) {
+        profesionesFiltradas = profesionesFiltradas.filter(prof => prof.categoria === categoriaFiltro);
+    }
+    
+    container.innerHTML = '';
+    
+    if (profesionesFiltradas.length === 0) {
+        container.innerHTML = `
+            <div class="col-12 text-center">
+                <p class="text-muted">No hay profesiones que coincidan con los filtros. ¡Crea la primera!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    profesionesFiltradas.forEach((profesion, index) => {
+       // const categoriaTexto = document.querySelector(`option[value="${profesion.categoria}"]`).textContent;
+        //const salarioTexto = profesion.salarioMin || profesion.salarioMax ? 
+         //   `${profesion.salarioMin || 0} - ${profesion.salarioMax || '∞'} BC` : 
+          //  'No especificado';
+
+          const emojiProfesion = obtenerEmojiProfesion(profesion.nombre.toLowerCase());
+        
+        const profesionCard = `
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card profession-card h-100">
+                    <div class="card-body text-center">
+                        <div class="profession-emoji">${emojiProfesion}</div>
+                        <h5 class="card-title">${profesion.nombre}</h5>
+                        <span class="category-badge mb-3 d-inline-block">${profesion.categoria}</span>
+                        
+                        ${profesion.descripcion ? `<p class="text-muted small mb-3">${profesion.descripcion}</p>` : ''}
+                        
+                        <div class="mb-3">
+                            <span class="salary-range">💰 ${profesion.salario}</span>
+                        </div>
+                        
+                        ${profesion.requisitos ? `
+                            <div class="text-start mb-3">
+                                <small class="text-muted">
+                                    <strong>Requisitos:</strong><br>
+                                    ${profesion.requisitos}
+                                </small>
+                            </div>
+                        ` : ''}
+         
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML += profesionCard;
+    });
+}
+
+// Función para limpiar el formulario
+function limpiarFormulario() {
+    document.getElementById('professionForm').reset();
+}
+
+// Función para eliminar una profesión
+function eliminarProfesion(index) {
+    if (confirm('¿Estás segura de que quieres eliminar esta profesión?')) {
+        profesiones.splice(index, 1);
+        mostrarProfesiones();
+        mostrarMensaje('Profesión eliminada correctamente', 'info');
+    }
+}
+
+// Función para editar una profesión (placeholder)
+function editarProfesion(index) {
+    const profesion = profesiones[index];
+    
+    // Llenar el formulario con los datos existentes
+    document.getElementById('codigo').value = profesion.codigo;
+    document.getElementById('nombre').value = profesion.nombre;
+    document.getElementById('emoji').value = profesion.emoji;
+    document.getElementById('descripcion').value = profesion.descripcion;
+    document.getElementById('categoria').value = profesion.categoria;
+    document.getElementById('salarioMin').value = profesion.salarioMin;
+    document.getElementById('salarioMax').value = profesion.salarioMax;
+    document.getElementById('requisitos').value = profesion.requisitos;
+    
+    // Eliminar la profesión existente
+    profesiones.splice(index, 1);
+    mostrarProfesiones();
+    
+    // Scroll al formulario
+    document.getElementById('professionForm').scrollIntoView({ behavior: 'smooth' });
+    
+    mostrarMensaje('Profesión cargada para edición', 'info');
+}
+
+// Función para mostrar mensajes
+function mostrarMensaje(mensaje, tipo) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${tipo} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+    alertDiv.innerHTML = `
+        ${mensaje}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    // Remover automáticamente después de 3 segundos
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.parentNode.removeChild(alertDiv);
+        }
+    }, 3000);
+}
+
+// Event listeners para filtros
+document.getElementById('buscarProfesion').addEventListener('input', mostrarProfesiones);
+document.getElementById('filtrarCategoria').addEventListener('change', mostrarProfesiones);
+
+// Inicializar con algunas profesiones de ejemplo
+document.addEventListener('DOMContentLoaded', function() {
+    // Agregar algunas profesiones de ejemplo
+
+    
+    mostrarProfesiones();
+});
+</script>
+
+<!-- Font Awesome para los iconos -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}

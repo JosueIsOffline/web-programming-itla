@@ -1,0 +1,77 @@
+[
+    {
+        "id": 1,
+        "nombre": "Josue",
+        "apellido": "Roberts",
+        "fechaNacimiento": "1990-03-09",
+        "foto": "ke",
+        "profesiones": [
+            {
+                "nombre": "Doctora",
+                "categoria": "Salud",
+                "salario": 3500
+            }
+        ],
+        "nivelExperiencia": "principiante"
+    },
+    {
+        "id": 2,
+        "nombre": "Bruce",
+        "apellido": "Wayne",
+        "fechaNacimiento": "1996-10-21",
+        "foto": "https:\/\/barbiepedia.com\/img\/barbie\/800\/X9449_0.jpg",
+        "profesiones": [
+            {
+                "nombre": "Presidenta",
+                "categoria": "Gobierno",
+                "salario": 7000
+            }
+        ],
+        "nivelExperiencia": "avanzado"
+    },
+    {
+        "id": 3,
+        "nombre": "Angela",
+        "apellido": "Parra",
+        "fechaNacimiento": "2005-05-13",
+        "foto": "https:\/\/barbiepedia.com\/img\/barbie\/800\/X9449_0.jpg",
+        "profesiones": [
+            {
+                "nombre": "Astronauta",
+                "categoria": "Ciencia",
+                "salario": 5000
+            }
+        ],
+        "nivelExperiencia": "avanzado"
+    },
+    {
+        "id": 4,
+        "nombre": "Batman Arkam City 2",
+        "apellido": "Wayne",
+        "fechaNacimiento": "2025-06-01",
+        "foto": "barbie.jpg",
+        "profesiones": [
+            {
+                "nombre": "Maestra",
+                "categoria": "Educaci\u00f3n",
+                "salario": 2200
+            }
+        ],
+        "nivelExperiencia": "intermedio"
+    },
+    {
+        "id": 5,
+        "nombre": "Liam",
+        "apellido": "Roberts",
+        "fechaNacimiento": "2025-06-01",
+        "foto": "https:\/\/barbiepedia.com\/img\/barbie\/800\/X9449_0.jpg",
+        "profesiones": [
+            {
+                "nombre": "Piloto",
+                "categoria": "Transporte",
+                "salario": 3600
+            }
+        ],
+        "nivelExperiencia": "intermedio"
+    }
+]
