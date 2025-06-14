@@ -1,0 +1,298 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Inicio - Consultorio Dental{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Welcome Section -->
+        <div class="jumbotron bg-gradient text-white rounded-3 p-5 mb-5" style="background: linear-gradient(135deg, var(--dental-primary) 0%, var(--dental-secondary) 100%);">
+            <div class="container-fluid">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="display-4 fw-bold mb-3">
+                            <i class=" bi bi-heart-pulse me-3"></i>
+                            Bienvenido al Sistema de Gestión
+                        </h1>
+                        <p class="text-dark lead mb-4">
+                            Administre de manera eficiente las visitas y el historial de pacientes de su consultorio dental.
+                        </p>
+                        <div class="d-flex gap-3">
+                            <a href="" class="btn btn-light btn-lg">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                Nueva Visita
+                            </a>
+                            <a href="/patients" class="btn btn-outline-light btn-lg">
+                                <i class="bi bi-list-ul me-2"></i>
+                                Ver Pacientes
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <i class="bi bi-hospital" style="font-size: 8rem; opacity: 0.8;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Dashboard -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="h3 mb-4">
+                    <i class="bi bi-graph-up text-primary me-2"></i>
+                    Panel de Control
+                </h2>
+            </div>
+            
+            <!-- Today's Statistics -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-primary">
+                    <div class="card-body text-center">
+                        <div class="d-flex justify-content-center align-items-center mb-3">
+                            <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                                <i class="bi bi-calendar-day text-primary fs-1"></i>
+                            </div>
+                        </div>
+                        <h3 class="h2 text-primary mb-1">{{ today_visits|default(0) }}</h3>
+                        <p class="text-muted mb-2">Visitas Hoy</p>
+                        <small class="text-success">
+                            <i class="bi bi-arrow-up me-1"></i>
+                            {{ today_percentage|default(0) }}% vs ayer
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Statistics -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-info">
+                    <div class="card-body text-center">
+                        <div class="d-flex justify-content-center align-items-center mb-3">
+                            <div class="rounded-circle bg-info bg-opacity-10 p-3">
+                                <i class="bi bi-calendar-week text-info fs-1"></i>
+                            </div>
+                        </div>
+                        <h3 class="h2 text-info mb-1">{{ week_visits|default(0) }}</h3>
+                        <p class="text-muted mb-2">Esta Semana</p>
+                        <small class="text-info">
+                            <i class="bi bi-calendar-range me-1"></i>
+                            Promedio {{ (week_visits|default(0) / 7)|round(1) }}/día
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Statistics -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-warning">
+                    <div class="card-body text-center">
+                        <div class="d-flex justify-content-center align-items-center mb-3">
+                            <div class="rounded-circle bg-warning bg-opacity-10 p-3">
+                                <i class="bi bi-calendar-month text-warning fs-1"></i>
+                            </div>
+                        </div>
+                        <h3 class="h2 text-warning mb-1">{{ month_visits|default(0) }}</h3>
+                        <p class="text-muted mb-2">Este Mes</p>
+                        <small class="text-warning">
+                            <i class="bi bi-graph-up me-1"></i>
+                            Meta: {{ monthly_goal|default(100) }} visitas
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Patients -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-success">
+                    <div class="card-body text-center">
+                        <div class="d-flex justify-content-center align-items-center mb-3">
+                            <div class="rounded-circle bg-success bg-opacity-10 p-3">
+                                <i class="bi bi-people text-success fs-1"></i>
+                            </div>
+                        </div>
+                        <h3 class="h2 text-success mb-1">{{ total_patients|default(0) }}</h3>
+                        <p class="text-muted mb-2">Total Pacientes</p>
+                        <small class="text-success">
+                            <i class="bi bi-person-plus me-1"></i>
+                            Registrados
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="h3 mb-4">
+                    <i class="bi bi-lightning-fill text-primary me-2"></i>
+                    Acciones Rápidas
+                </h2>
+            </div>
+            
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-person-plus-fill text-primary fs-1"></i>
+                        </div>
+                        <h5 class="card-title">Registrar Paciente</h5>
+                        <p class="card-text text-muted">Agregue una nueva visita al sistema de manera rápida y sencilla.</p>
+                        <a href="" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            Nueva Visita
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="rounded-circle bg-info bg-opacity-10 p-3 mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-search text-info fs-1"></i>
+                        </div>
+                        <h5 class="card-title">Buscar Paciente</h5>
+                        <p class="card-text text-muted">Encuentre rápidamente el historial de cualquier paciente registrado.</p>
+                        <a href="" class="btn btn-info">
+                            <i class="bi bi-search me-2"></i>
+                            Buscar
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="rounded-circle bg-success bg-opacity-10 p-3 mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-file-earmark-text text-success fs-1"></i>
+                        </div>
+                        <h5 class="card-title">Generar Reporte</h5>
+                        <p class="card-text text-muted">Cree reportes detallados de las visitas y estadísticas del consultorio.</p>
+                        <a href="#" class="btn btn-success">
+                            <i class="bi bi-file-earmark-text me-2"></i>
+                            Reportes
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Visits -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-clock-history me-2"></i>
+                            Visitas Recientes
+                        </h5>
+                        <a href="" class="btn btn-outline-primary btn-sm">
+                            Ver Todas
+                            <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_visits is empty %}
+                            <div class="text-center py-4">
+                                <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                                <h5 class="text-muted mt-3">No hay visitas recientes</h5>
+                                <p class="text-muted">Las visitas recientes aparecerán aquí una vez que comience a registrar pacientes.</p>
+                                <a href="" class="btn btn-primary mt-2">
+                                    <i class="bi bi-plus-circle me-2"></i>
+                                    Registrar Primera Visita
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Paciente</th>
+                                            <th>Motivo</th>
+                                            <th>Fecha</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for visit in recent_visits|slice(0, 5) %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px; font-size: 12px;">
+                                                        {{ visit.nombre|first|upper }}{{ visit.apellido|first|upper }}
+                                                    </div>
+                                                    <span class="fw-semibold">{{ visit.nombre }} {{ visit.apellido }}</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% set motivo_class = {
+                                                    'limpieza': 'bg-info',
+                                                    'caries': 'bg-warning',
+                                                    'dolor': 'bg-danger',
+                                                    'chequeo': 'bg-success',
+                                                    'emergencia': 'bg-dark'
+                                                } %}
+                                                <span class="badge {{ motivo_class[visit.motivo]|default('bg-secondary') }}">
+                                                    {{ visit.motivo|capitalize }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="text-nowrap">{{ visit.fecha_visita|date('d/m/Y H:i') }}</span>
+                                            </td>
+                                            <td>
+                                                {% if visit.fecha_visita|date('Y-m-d') == "now"|date('Y-m-d') %}
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-check-circle me-1"></i>Hoy
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-light text-dark">Completada</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Auto-refresh statistics every 5 minutes
+    setInterval(function() {
+        // In a real application, you would make an AJAX call here
+        // to refresh the statistics without reloading the page
+        console.log('Refreshing statistics...');
+    }, 300000); // 5 minutes
+
+    // Current time display
+    function updateDateTime() {
+        const now = new Date();
+        const options = { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+        
+        // Add current date/time to welcome section if needed
+        const welcomeTime = document.getElementById('welcome-time');
+        if (welcomeTime) {
+            welcomeTime.textContent = now.toLocaleDateString('es-DO', options);
+        }
+    }
+    
+    updateDateTime();
+    setInterval(updateDateTime, 60000); // Update every minute
+</script>
+{% endblock %}

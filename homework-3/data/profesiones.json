@@ -103,5 +103,10 @@
         "nombre": "Programadora",
         "categoria": "tecnologia",
         "salario": 1000000000
+    },
+    {
+        "nombre": "Backend",
+        "categoria": "tecnologia",
+        "salario": 2000
     }
 ]

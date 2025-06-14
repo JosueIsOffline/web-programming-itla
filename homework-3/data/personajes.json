@@ -73,5 +73,35 @@
             }
         ],
         "nivelExperiencia": "intermedio"
+    },
+    {
+        "id": 6,
+        "nombre": "Juana",
+        "apellido": "Hernandez",
+        "fechaNacimiento": "2002-06-11",
+        "foto": "https:\/\/barbiepedia.com\/img\/barbie\/800\/X9449_0.jpg",
+        "profesiones": [
+            {
+                "nombre": "Astronauta",
+                "categoria": "Ciencia",
+                "salario": 5000
+            }
+        ],
+        "nivelExperiencia": "avanzado"
+    },
+    {
+        "id": 7,
+        "nombre": "Jessica",
+        "apellido": "Wayne",
+        "fechaNacimiento": "2025-06-01",
+        "foto": "dsds",
+        "profesiones": [
+            {
+                "nombre": "Veterinaria",
+                "categoria": "Salud",
+                "salario": 2800
+            }
+        ],
+        "nivelExperiencia": "intermedio"
     }
 ]

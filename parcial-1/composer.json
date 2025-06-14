@@ -1,0 +1,22 @@
+{
+  "name": "josue/dentist",
+  "require": {
+    "arkham/framework": "*"
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../framework"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "scripts": {
+    "serve": "php -S localhost:8000 -t public/"
+  }
+}

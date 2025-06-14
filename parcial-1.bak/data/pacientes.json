@@ -1,0 +1,29 @@
+[
+    {
+        "id": 1,
+        "nombre": "Josue",
+        "apellido": "Parra",
+        "cedula": "102-0390923-3",
+        "edad": 32,
+        "motivo": "dolor",
+        "fechaHora": "2025-06-11 23:19:25"
+    },
+    {
+        "id": 2,
+        "nombre": "Josue",
+        "apellido": "Roberts",
+        "cedula": "102-0390923-3",
+        "edad": 34,
+        "motivo": "dolor",
+        "fechaHora": "2025-06-11 23:20:16"
+    },
+    {
+        "id": 3,
+        "nombre": "Programadora",
+        "apellido": "Hernandez",
+        "cedula": "102-0390923-3",
+        "edad": 23,
+        "motivo": "ortodoncia",
+        "fechaHora": "2025-06-11 23:28:01"
+    }
+]

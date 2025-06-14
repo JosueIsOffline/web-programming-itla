@@ -1,0 +1,357 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Nueva Visita - Consultorio Dental{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+        <!-- Header Section -->
+        <div class="text-center mb-4">
+            <h1 class="h2 mb-1">
+                <i class="bi bi-plus-circle-fill text-primary me-2"></i>
+                Registrar Nueva Visita
+            </h1>
+            <p class="text-muted">Complete el formulario para registrar la visita del paciente</p>
+        </div>
+
+        <!-- Success/Error Messages -->
+        {% if success_message %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                {{ success_message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endif %}
+
+        {% if error_message %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                {{ error_message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endif %}
+
+        <!-- Registration Form -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-plus me-2"></i>
+                    Datos del Paciente
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="" id="visitForm" novalidate>
+                    <div class="row">
+                        <!-- Personal Information Section -->
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-person-badge me-2"></i>
+                                Información Personal
+                            </h6>
+                        </div>
+                        
+                        <!-- Name -->
+                        <div class="col-md-6 mb-3">
+                            <label for="nombre" class="form-label">
+                                <i class="bi bi-person me-1"></i>
+                                Nombre <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control {{ errors.nombre is defined ? 'is-invalid' : '' }}" 
+                                   id="nombre" 
+                                   name="nombre" 
+                                   value="{{ form_data.nombre|default('') }}"
+                                   placeholder="Ingrese el nombre"
+                                   required>
+                            {% if errors.nombre is defined %}
+                                <div class="invalid-feedback">
+                                    {{ errors.nombre }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Last Name -->
+                        <div class="col-md-6 mb-3">
+                            <label for="apellido" class="form-label">
+                                <i class="bi bi-person me-1"></i>
+                                Apellido <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control {{ errors.apellido is defined ? 'is-invalid' : '' }}" 
+                                   id="apellido" 
+                                   name="apellido" 
+                                   value="{{ form_data.apellido|default('') }}"
+                                   placeholder="Ingrese el apellido"
+                                   required>
+
+
+                            <input type="hidden" name="fechaHora" id="fecha-hora">
+
+                            {% if errors.apellido is defined %}
+                                <div class="invalid-feedback">
+                                    {{ errors.apellido }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- ID Number -->
+                        <div class="col-md-6 mb-3">
+                            <label for="cedula" class="form-label">
+                                <i class="bi bi-card-text me-1"></i>
+                                Cédula <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control {{ errors.cedula is defined ? 'is-invalid' : '' }}" 
+                                   id="cedula" 
+                                   name="cedula" 
+                                   value="{{ form_data.cedula|default('') }}"
+                                   placeholder="000-0000000-0"
+                                   pattern="[0-9]{3}-[0-9]{7}-[0-9]{1}"
+                                   title="Formato: 000-0000000-0"
+                                   required>
+                            {% if errors.cedula is defined %}
+                                <div class="invalid-feedback">
+                                    {{ errors.cedula }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Formato: 000-0000000-0
+                            </div>
+                        </div>
+
+                        <!-- Age -->
+                        <div class="col-md-6 mb-3">
+                            <label for="edad" class="form-label">
+                                <i class="bi bi-calendar-event me-1"></i>
+                                Edad <span class="text-danger">*</span>
+                            </label>
+                            <input type="number" 
+                                   class="form-control {{ errors.edad is defined ? 'is-invalid' : '' }}" 
+                                   id="edad" 
+                                   name="edad" 
+                                   value="{{ form_data.edad|default('') }}"
+                                   placeholder="Edad en años"
+                                   min="1" 
+                                   max="120"
+                                   required>
+                            {% if errors.edad is defined %}
+                                <div class="invalid-feedback">
+                                    {{ errors.edad }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Visit Information Section -->
+                        <div class="col-12 mt-4">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-hospital me-2"></i>
+                                Información de la Visita
+                            </h6>
+                        </div>
+
+                        <!-- Visit Reason -->
+                        <div class="col-12 mb-3">
+                            <label for="motivo" class="form-label">
+                                <i class="bi bi-clipboard-heart me-1"></i>
+                                Motivo de la Visita <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select {{ errors.motivo is defined ? 'is-invalid' : '' }}" 
+                                    id="motivo" 
+                                    name="motivo" 
+                                    required>
+                                <option value="">Seleccione el motivo de la visita</option>
+                                <option value="limpieza" {{ form_data.motivo|default('') == 'limpieza' ? 'selected' : '' }}>
+                                    🦷 Limpieza Dental
+                                </option>
+                                <option value="caries" {{ form_data.motivo|default('') == 'caries' ? 'selected' : '' }}>
+                                    🕳️ Tratamiento de Caries
+                                </option>
+                                <option value="dolor" {{ form_data.motivo|default('') == 'dolor' ? 'selected' : '' }}>
+                                    😣 Dolor Dental
+                                </option>
+                                <option value="chequeo" {{ form_data.motivo|default('') == 'chequeo' ? 'selected' : '' }}>
+                                    🔍 Chequeo General
+                                </option>
+                                <option value="emergencia" {{ form_data.motivo|default('') == 'emergencia' ? 'selected' : '' }}>
+                                    🚨 Emergencia Dental
+                                </option>
+                                <option value="ortodoncia" {{ form_data.motivo|default('') == 'ortodoncia' ? 'selected' : '' }}>
+                                    🦷 Ortodoncia
+                                </option>
+                                <option value="extraccion" {{ form_data.motivo|default('') == 'extraccion' ? 'selected' : '' }}>
+                                    🦷 Extracción
+                                </option>
+                                <option value="protesis" {{ form_data.motivo|default('') == 'protesis' ? 'selected' : '' }}>
+                                    🦷 Prótesis Dental
+                                </option>
+                            </select>
+                            {% if errors.motivo is defined %}
+                                <div class="invalid-feedback">
+                                    {{ errors.motivo }}
+                                </div>
+                            {% endif %}
+
+                              <div class="text-center mb-3">
+                                 <button type="submit" class="btn btn-barbie btn-lg me-3">
+                                    <i class="fas fa-plus me-2"></i>Registrar Visita
+                                 </button>
+                                 <button type="button" class="btn btn-outline-barbie btn-lg" onclick="limpiarFormulario()">
+                                     <i class="fas fa-eraser me-2"></i>Limpiar Formulario
+                                 </button>
+                              </div>
+
+                        </div>
+
+                        <!-- Date and Time Information -->
+                        <div class="col-12 mb-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title text-success mb-3">
+                                        <i class="bi bi-calendar-check me-2"></i>
+                                        Información de Registro
+                                    </h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="mb-1">
+                                                <i class="bi bi-calendar3 text-muted me-2"></i>
+                                                <strong>Fecha:</strong> {{ "now"|date("d/m/Y") }}
+                                            </p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="mb-1">
+                                                <i class="bi bi-clock text-muted me-2"></i>
+                                                <strong>Hora:</strong> <span id="current-time">{{ "now"|date("H:i:s") }}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        La fecha y hora se registrarán automáticamente al guardar la visita.
+                                    </div>
+                                </div>
+                            </div>
+                        </div> 
+                </form>
+            </div>
+        </div>
+
+        <!-- Quick Help Card -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-question-circle me-2"></i>
+                    Ayuda Rápida
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary">
+                            <i class="bi bi-card-text me-1"></i>
+                            Formato de Cédula
+                        </h6>
+                        <p class="small text-muted mb-2">Use el formato: 000-0000000-0</p>
+                        <p class="small text-muted">Ejemplo: 001-1234567-8</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary">
+                            <i class="bi bi-clock me-1"></i>
+                            Registro Automático
+                        </h6>
+                        <p class="small text-muted mb-2">La fecha y hora se guardan automáticamente</p>
+                        <p class="small text-muted">No es necesario ingresarlas manualmente</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Update current time every second
+    function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('es-DO', { 
+            hour12: false,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        document.getElementById('current-time').textContent = timeString;
+    }
+    
+    // Update time initially and then every second
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    // Form validation
+    document.getElementById('visitForm').addEventListener('submit', function(e) {
+        const form = this;
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+
+    // Auto-format cedula inpu:w
+    document.getElementById('cedula').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+        if (value.length >= 3) {
+            value = value.substring(0, 3) + '-' + value.substring(3);
+        }
+        if (value.length >= 11) {
+            value = value.substring(0, 11) + '-' + value.substring(11, 12);
+        }
+        e.target.value = value;
+    });
+
+    // Auto-focus next field on enter
+    document.querySelectorAll('input, select, textarea').forEach(function(input, index, inputs) {
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                const nextInput = inputs[index + 1];
+                if (nextInput) {
+                    nextInput.focus();
+                }
+            }
+        });
+    });
+
+   function limpiarFormulario() {
+    // Show confirmation before form reset
+    document.querySelector('button[type="reset"]').addEventListener('click', function(e) {
+        if (!confirm('¿Está seguro que desea limpiar todos los campos del formulario?')) {
+            e.preventDefault();
+        }
+    });
+
+   }
+function updateHiddenDateTime() {
+    const now = new Date();
+
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // meses 0-11
+    const day = String(now.getDate()).padStart(2, '0');
+
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+
+    const fullDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    document.getElementById('fecha-hora').value = fullDateTime;
+}
+
+
+const form = document.querySelector('form');
+form.addEventListener('submit', (e) => {
+    updateHiddenDateTime();
+});
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,56 @@
+[
+    {
+        "id": 1,
+        "nombre": "Josue",
+        "apellido": "Hernandez",
+        "cedula": "403-325167347-3",
+        "edad": 20,
+        "motivo": "Caries",
+        "fechaHora": "2025-06-23 23:00:00"
+    },
+    {
+        "id": 2,
+        "nombre": "Angela",
+        "apellido": "Parra",
+        "cedula": "001-23867564-2",
+        "edad": 20,
+        "motivo": "Ortodoncia",
+        "fechaHora": "2025-06-14 04:00:52"
+    },
+    {
+        "id": 3,
+        "nombre": "Angela",
+        "apellido": "Parra",
+        "cedula": "001-23867564-2",
+        "edad": 20,
+        "motivo": "Ortodoncia",
+        "fechaHora": "2025-06-14 04:01:25"
+    },
+    {
+        "id": 4,
+        "nombre": "Bruce",
+        "apellido": "Wayne",
+        "cedula": "102-0390923-3",
+        "edad": 34,
+        "motivo": "caries",
+        "fechaHora": "2025-06-13 22:38:27"
+    },
+    {
+        "id": 5,
+        "nombre": "Bruce",
+        "apellido": "Wayne",
+        "cedula": "102-0390923-3",
+        "edad": 34,
+        "motivo": "caries",
+        "fechaHora": "2025-06-13 22:38:27"
+    },
+    {
+        "id": 6,
+        "nombre": "Josu\u00e9 Ricardo",
+        "apellido": "Roberts",
+        "cedula": "102-0390923-3",
+        "edad": 44,
+        "motivo": "caries",
+        "fechaHora": "2025-06-13 22:39:26"
+    }
+]

@@ -4,15 +4,24 @@ namespace JosueIsOffline\Framework\Http;
 
 use FastRoute\RouteCollector;
 use JosueIsOffline\Framework\Controllers\AbstractController;
+use JosueIsOffline\Framework\Routing\RouteLoader;
 
 use function FastRoute\simpleDispatcher;
 
 class Kernel
 {
+
+  private RouteLoader $routeLoader;
+
+  public function __construct(?RouteLoader $routeLoader = null)
+  {
+    $this->routeLoader = $routeLoader ?? new RouteLoader();
+  }
+
   public function handle(Request $request): Response
   {
     $dispatcher = simpleDispatcher(function (RouteCollector $routerCollector) {
-      $routes = include BASE_PATH . '/routes/web.php';
+      $routes = $this->routeLoader->loadRoutes();
 
       foreach ($routes as $route) {
         $routerCollector->addRoute(...$route);
@@ -46,5 +55,10 @@ class Kernel
     }
 
     return new Response('500 Internal Server Error', 500);
+  }
+
+  public function setRouterLoader(RouteLoader $routeLoader): void
+  {
+    $this->routeLoader = $routeLoader;
   }
 }
