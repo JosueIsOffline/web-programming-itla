@@ -1,0 +1,105 @@
+{% extends "layout.html.twig" %}
+
+{% block title %}Predicción de Edad - Portal APIs{% endblock %}
+
+{% block styles %}
+.age-young {
+    background: linear-gradient(135deg, #74b9ff, #0984e3);
+}
+.age-adult {
+    background: linear-gradient(135deg, #00b894, #00a085);
+}
+.age-senior {
+    background: linear-gradient(135deg, #fdcb6e, #e17055);
+}
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="text-center mb-5">
+                <i class="fas fa-birthday-cake fa-4x text-success mb-3"></i>
+                <h1 class="display-5">Predicción de Edad</h1>
+                <p class="lead">Estima la edad promedio basada en un nombre</p>
+            </div>
+
+            <!-- Formulario -->
+            <div class="card shadow-lg mb-4">
+                <div class="card-body">
+                    <form method="POST" action="/api/age" class="row g-3">
+                        <div class="col-md-8">
+                            <label for="name" class="form-label">Nombre a analizar</label>
+                            <input type="text" class="form-control form-control-lg" id="name" name="name" 
+                                   value="{{ result.name }}" placeholder="Ej: Roberto, Ana, Carlos..." required>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-success btn-lg w-100">
+                                <i class="fas fa-calculator me-2"></i>Calcular
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Resultados -->
+            {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                </div>
+            {% endif %}
+
+            {% if result and result.age %}
+                <div class="card shadow-lg {% if result.category == 'joven' %}age-young{% elseif result.category == 'adulto' %}age-adult{% else %}age-senior{% endif %} text-white">
+                    <div class="card-body text-center py-5">
+                        <div class="row align-items-center"> 
+                            <div>
+                                <h2 class="display-6 mb-3">{{ result.name|title }}</h2>
+                                <h3 class="mb-3">
+                                    Edad estimada: {{ result.age }} años {{ result.emoji }}
+                                </h3>
+                                <h4 class="mb-4">Categoría: {{ result.category|title }}</h4>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="bg-white bg-opacity-25 rounded p-3 mb-3">
+                                            <h5>Muestras</h5>
+                                            <p class="h4 mb-0">{{ result.count|number_format }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="bg-white bg-opacity-25 rounded p-3 mb-3">
+                                            <h5>Rango</h5>
+                                            <p class="h4 mb-0">
+                                                {% if result.category == 'joven' %}
+                                                    0-25 años
+                                                {% elseif result.category == 'adulto' %}
+                                                    26-60 años
+                                                {% else %}
+                                                    60+ años
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% elseif result %}
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-question-circle me-2"></i>
+                    No se pudo determinar la edad para el nombre "{{ result.name }}".
+                </div>
+            {% endif %}
+
+            <div class="text-center mt-4">
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="fas fa-home me-2"></i>Volver al inicio
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

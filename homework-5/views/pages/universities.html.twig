@@ -1,0 +1,94 @@
+{% extends "layout.html.twig" %}
+
+{% block title %}Universidades por País - Portal APIs{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="text-center mb-5">
+                <i class="fas fa-university fa-4x text-warning mb-3"></i>
+                <h1 class="display-5">Universidades por País</h1>
+                <p class="lead">Busca universidades en cualquier país del mundo</p>
+            </div>
+
+            <!-- Formulario -->
+            <div class="card shadow-lg mb-4">
+                <div class="card-body">
+                    <form method="POST" action="/api/universities" class="row g-3">
+                        <div class="col-md-8">
+                            <label for="country" class="form-label">País (en inglés)</label>
+                            <input type="text" class="form-control form-control-lg" id="country" name="country" 
+                                   value="{{ country }}" placeholder="Ej: Dominican Republic, Spain, Mexico..." required>
+                            <div class="form-text">Ingresa el nombre del país en inglés para mejores resultados</div>
+                        </div>
+                        <div class="col-md-4 mb-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-warning btn-lg w-100">
+                                <i class="fas fa-search me-2"></i>Buscar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Errores -->
+            {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                </div>
+            {% endif %}
+
+            <!-- Resultados -->
+            {% if universities %}
+                <div class="alert alert-success mb-4">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Se encontraron <strong>{{ universities|length }}</strong> universidades en {{ country }}
+                </div>
+
+                <div class="row g-4">
+                    {% for university in universities %}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary">{{ university.name }}</h5>
+                                    
+                                    <div class="mb-3">
+                                        <small class="text-muted">
+                                            <i class="fas fa-globe me-1"></i>
+                                            {{ university.country }}
+                                            {% if university['state-province'] %}
+                                                - {{ university['state-province'] }}
+                                            {% endif %}
+                                        </small>
+                                    </div>
+
+                                    {% if university.domains %}
+                                        <p class="card-text">
+                                            <i class="fas fa-link me-1"></i>
+                                            <strong>Dominio:</strong> {{ university.domains }}
+                                        </p>
+                                    {% endif %}
+
+                                    {% if university.web_pages and university.web_pages %}
+                                        <a href="{{ university.web_pages }}" target="_blank" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-external-link-alt me-1"></i>Visitar Sitio Web
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="text-center mt-4">
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="fas fa-home me-2"></i>Volver al inicio
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,172 @@
+{% extends "layout.html.twig" %}
+
+{% block title %}Pokémon - Portal APIs{% endblock %}
+
+{% block styles %}
+.pokemon-card {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    border-radius: 20px;
+}
+.type-normal { background-color: #A8A878; }
+.type-fire { background-color: #F08030; }
+.type-water { background-color: #6890F0; }
+.type-electric { background-color: #F8D030; }
+.type-grass { background-color: #78C850; }
+.type-ice { background-color: #98D8D8; }
+.type-fighting { background-color: #C03028; }
+.type-poison { background-color: #A040A0; }
+.type-ground { background-color: #E0C068; }
+.type-flying { background-color: #A890F0; }
+.type-psychic { background-color: #F85888; }
+.type-bug { background-color: #A8B820; }
+.type-rock { background-color: #B8A038; }
+.type-ghost { background-color: #705898; }
+.type-dragon { background-color: #7038F8; }
+.type-dark { background-color: #705848; }
+.type-steel { background-color: #B8B8D0; }
+.type-fairy { background-color: #EE99AC; }
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="text-center mb-5">
+                <i class="fas fa-dragon fa-4x text-danger mb-3"></i>
+                <h1 class="display-5">Información de Pokémon</h1>
+                <p class="lead">Descubre todo sobre tu Pokémon favorito</p>
+            </div>
+
+            <!-- Formulario -->
+            <div class="card shadow-lg mb-4">
+                <div class="card-body">
+                    <form method="POST" class="row g-3">
+                        <div class="col-md-8">
+                            <label for="pokemon" class="form-label">Nombre del Pokémon</label>
+                            <input type="text" class="form-control form-control-lg" id="pokemon" name="pokemon" 
+                                   value="{{ pokemonName }}" placeholder="Ej: pikachu, charizard, mewtwo..." required>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-danger btn-lg w-100">
+                                <i class="fas fa-search me-2"></i>Buscar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Errores -->
+            {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                </div>
+            {% endif %}
+
+            <!-- Resultados -->
+            {% if pokemon %}
+                <div class="card shadow-lg pokemon-card text-white mb-4">
+                    <div class="card-body p-5">
+                        <div class="row align-items-center">
+                            <div class="col-md-4 text-center">
+                                <img src="{{ pokemon.sprites.other['official-artwork'].front_default }}" 
+                                     alt="{{ pokemon.name }}" class="img-fluid mb-3" style="max-width: 250px;">
+                                
+                                <!-- Audio del Pokémon -->
+                                {% if pokemon.cries and pokemon.cries.latest %}
+                                    <div class="mb-3">
+                                        <audio controls class="w-100">
+                                            <source src="{{ pokemon.cries.latest }}" type="audio/ogg">
+                                            Tu navegador no soporta audio.
+                                        </audio>
+                                        <small class="d-block mt-1">🔊 Sonido del Pokémon</small>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-8">
+                                <h2 class="display-6 mb-3">{{ pokemon.name|title }} #{{ pokemon.id }}</h2>
+                                
+                                <!-- Tipos -->
+                                <div class="mb-3">
+                                    <h5>Tipos:</h5>
+                                    {% for type in pokemon.types %}
+                                        <span class="badge type-{{ type.type.name }} me-2 p-2">
+                                            {{ type.type.name|title }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- Stats básicas -->
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="bg-white bg-opacity-25 rounded p-3 mb-3">
+                                            <h6>Altura</h6>
+                                            <p class="h4 mb-0">{{ (pokemon.height / 10) }} m</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="bg-white bg-opacity-25 rounded p-3 mb-3">
+                                            <h6>Peso</h6>
+                                            <p class="h4 mb-0">{{ (pokemon.weight / 10) }} kg</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white bg-opacity-25 rounded p-3">
+                                    <h6>Experiencia Base</h6>
+                                    <p class="h4 mb-0">{{ pokemon.base_experience }} XP</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Habilidades -->
+                <div class="card shadow-lg mb-4">
+                    <div class="card-body">
+                        <h4><i class="fas fa-magic me-2"></i>Habilidades</h4>
+                        <div class="row">
+                            {% for ability in pokemon.abilities %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="border rounded p-3 h-100">
+                                        <h6 class="text-primary">{{ ability.ability.name|title }}</h6>
+                                        {% if ability.is_hidden %}
+                                            <span class="badge bg-warning">Oculta</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estadísticas -->
+                <div class="card shadow-lg">
+                    <div class="card-body">
+                        <h4><i class="fas fa-chart-bar me-2"></i>Estadísticas Base</h4>
+                        {% for stat in pokemon.stats %}
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>{{ stat.stat.name|title }}</span>
+                                    <span><strong>{{ stat.base_stat }}</strong></span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" 
+                                         style="width: {{ (stat.base_stat / 255 * 100) }}%">
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="text-center mt-4">
+                <a href="index.php" class="btn btn-outline-primary">
+                    <i class="fas fa-home me-2"></i>Volver al inicio
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

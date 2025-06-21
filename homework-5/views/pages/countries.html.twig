@@ -1,0 +1,144 @@
+{% extends "layout.html.twig" %}
+
+{% block title %}Información de Países - Portal APIs{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="text-center mb-5">
+                <i class="fas fa-globe fa-4x text-info mb-3"></i>
+                <h1 class="display-5">Información de Países</h1>
+                <p class="lead">Obtén datos completos de cualquier país del mundo</p>
+            </div>
+
+            <!-- Formulario -->
+            <div class="card shadow-lg mb-4">
+                <div class="card-body">
+                    <form method="POST" class="row g-3">
+                        <div class="col-md-8">
+                            <label for="country" class="form-label">Nombre del país</label>
+                            <input type="text" class="form-control form-control-lg" id="country" name="country" 
+                                   value="{{ countryName }}" placeholder="Ej: Dominican Republic, Spain, Japan..." required>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-info btn-lg w-100">
+                                <i class="fas fa-search me-2"></i>Buscar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Errores -->
+            {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                </div>
+            {% endif %}
+
+            <!-- Resultados -->
+            {% if country %}
+                <div class="card shadow-lg mb-4">
+                    <div class="card-body text-center py-4" style="background: linear-gradient(135deg, #74b9ff, #0984e3); color: white;">
+                        <img src="{{ country.flags.png }}" alt="Bandera de {{ country.name.common }}" 
+                             class="img-fluid mb-3" style="max-height: 100px; border: 2px solid white;">
+                        <h2 class="display-6">{{ country.name.common }}</h2>
+                        <p class="lead">{{ country.name.official }}</p>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-info-circle text-primary me-2"></i>Información General</h5>
+                                <ul class="list-unstyled">
+                                    <li><strong>Capital:</strong> 
+                                        {% if country.capital %}
+                                            {{ country.capital[0] }}
+                                        {% else %}
+                                            No disponible
+                                        {% endif %}
+                                    </li>
+                                    <li><strong>Región:</strong> {{ country.region }}</li>
+                                    <li><strong>Subregión:</strong> {{ country.subregion }}</li>
+                                    <li><strong>Población:</strong> {{ country.population|number_format }}</li>
+                                    <li><strong>Área:</strong> {{ country.area|number_format }} km²</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-dollar-sign text-success me-2"></i>Monedas</h5>
+                                {% if country.currencies %}
+                                    {% for code, currency in country.currencies %}
+                                        <div class="mb-2">
+                                            <strong>{{ currency.name }}</strong> ({{ code }})
+                                            {% if currency.symbol %}
+                                                - {{ currency.symbol }}
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p>No disponible</p>
+                                {% endif %}
+
+                                <h5 class="mt-3"><i class="fas fa-language text-warning me-2"></i>Idiomas</h5>
+                                {% if country.languages %}
+                                    {% for code, language in country.languages %}
+                                        <span class="badge bg-secondary me-1">{{ language }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <p>No disponible</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5><i class="fas fa-map text-danger me-2"></i>Ubicación y Otros Datos</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <ul class="list-unstyled">
+                                            {% if country.timezones %}
+                                                <li><strong>Zona horaria:</strong> {{ country.timezones[0] }}</li>
+                                            {% endif %}
+                                            {% if country.tld %}
+                                                <li><strong>Dominio de internet:</strong> {{ country.tld[0] }}</li>
+                                            {% endif %}
+                                            {% if country.cca2 %}
+                                                <li><strong>Código ISO:</strong> {{ country.cca2 }}</li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        {% if country.maps and country.maps.googleMaps %}
+                                            <a href="{{ country.maps.googleMaps }}" target="_blank" 
+                                               class="btn btn-outline-primary">
+                                                <i class="fas fa-map-marker-alt me-1"></i>Ver en Google Maps
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="text-center mt-4">
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="fas fa-home me-2"></i>Volver al inicio
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
