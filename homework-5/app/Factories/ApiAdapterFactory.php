@@ -6,6 +6,7 @@ use App\Services\AgeApiAdapter;
 use App\Services\ApiAdapterInterface;
 use App\Services\CountriesApiAdapter;
 use App\Services\GenderApiAdapter;
+use App\Services\PokemonApiAdapter;
 use App\Services\UniversitiesApiAdapter;
 
 class ApiAdapterFactory
@@ -17,6 +18,7 @@ class ApiAdapterFactory
       'age' => new AgeApiAdapter(),
       'universities' => new UniversitiesApiAdapter(),
       'countries' => new CountriesApiAdapter(),
+      'pokemon' => new PokemonApiAdapter(),
       default => throw new \Exception("There is no adapter to '$type'"),
     };
   }
