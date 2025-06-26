@@ -4,7 +4,7 @@ namespace App\Services;
 
 class PokemonApiAdapter implements ApiAdapterInterface
 {
-  public function fetch(array $params): array
+  public function fetch(?array $params = []): array
   {
     $pokemon = $params['pokemon'];
 

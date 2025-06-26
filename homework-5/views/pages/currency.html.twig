@@ -1,0 +1,127 @@
+{% extends "layout.html.twig" %}
+
+{% block title %}Conversión de Monedas - Portal APIs{% endblock %}
+
+{% block styles %}
+.currency-card {
+    background: linear-gradient(135deg, #00b894, #00a085);
+    color: white;
+}
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="text-center mb-5">
+                <i class="fas fa-dollar-sign fa-4x text-success mb-3"></i>
+                <h1 class="display-5">Conversión de Monedas</h1>
+                <p class="lead">Convierte dólares estadounidenses a otras monedas</p>
+            </div>
+
+            <!-- Formulario -->
+            <div class="card shadow-lg mb-4">
+                <div class="card-body">
+                    <form method="POST" class="row g-3">
+                        <div class="col-md-8">
+                            <label for="amount" class="form-label">Cantidad en USD ($)</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="amount" name="amount" 
+                                       value="{{ result.amount }}" placeholder="100.00" step="0.01" min="0.01" required>
+                                <span class="input-group-text">USD</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-success btn-lg w-100">
+                                <i class="fas fa-exchange-alt me-2"></i>Convertir
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Errores -->
+            {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                </div>
+            {% endif %}
+
+            <!-- Resultados -->
+            {% if result %}
+                <div class="card shadow-lg currency-card mb-4">
+                    <div class="card-body text-center py-4">
+                        <h3 class="mb-4">Conversión de ${{ result.amount|number_format(2) }} USD</h3>
+                        <small class="text-white-50">Tasas actualizadas: {{ result.date }}</small>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-flag fa-2x text-primary mb-2"></i>
+                                <h5>Peso Dominicano</h5>
+                                <h3 class="text-primary">{{ result.dop|number_format(2) }} DOP</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-euro-sign fa-2x text-warning mb-2"></i>
+                                <h5>Euro</h5>
+                                <h3 class="text-warning">{{ result.eur|number_format(2) }} EUR</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-pound-sign fa-2x text-success mb-2"></i>
+                                <h5>Libra Esterlina</h5>
+                                <h3 class="text-success">{{ result.gbp|number_format(2) }} GBP</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-yen-sign fa-2x text-danger mb-2"></i>
+                                <h5>Yen Japonés</h5>
+                                <h3 class="text-danger">{{ result.jpy|number_format(0) }} JPY</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fs-2 text-info mb-2">C$</i>
+                                <h5>Dólar Canadiense</h5>
+                                <h3 class="text-info">{{ result.cad|number_format(2) }} CAD</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-coins fa-2x text-secondary mb-2"></i>
+                                <h5>Dólar Australiano</h5>
+                                <h3 class="text-secondary">{{ result.aud|number_format(2) }} AUD</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="text-center mt-4">
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="fas fa-home me-2"></i>Volver al inicio
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

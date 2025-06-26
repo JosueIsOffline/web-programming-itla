@@ -1,0 +1,196 @@
+{% extends "layout.html.twig" %}
+
+{% block title %}Generador de Imágenes IA - Portal APIs{% endblock %}
+
+{% block styles %}
+.ai-generator-card {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+.generated-image {
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.prompt-examples {
+    background: #f8f9fa;
+    border-left: 4px solid #007bff;
+}
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="text-center mb-5">
+                <i class="fas fa-magic fa-4x text-primary mb-3"></i>
+                <h1 class="display-5">Generador de Imágenes IA</h1>
+                <p class="lead">Crea imágenes únicas usando inteligencia artificial</p>
+                <small class="text-muted">Powered by Cloudflare AI - Flux-1-Schnell</small>
+            </div>
+
+            <!-- Formulario -->
+            <div class="card shadow-lg mb-4">
+                <div class="card-body">
+                    <form method="POST" class="row g-3" id="generateForm">
+                        <div class="col-md-8">
+                            <label for="prompt" class="form-label">Descripción de la imagen (en inglés)</label>
+                            <textarea class="form-control form-control-lg" id="prompt" name="prompt" rows="3" 
+                                      placeholder="Ej: cyberpunk cat, futuristic city, abstract art..." required>{{ prompt }}</textarea>
+                            <div class="form-text">Describe detalladamente lo que quieres generar</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="seed" class="form-label">Seed (opcional)</label>
+                            <input type="number" class="form-control" id="seed" name="seed" 
+                                   value="{{ seed }}" placeholder="Número aleatorio" min="1" max="1000000">
+                            <div class="form-text mb-3">Para reproducir resultados</div>
+                            <button type="submit" class="btn btn-primary btn-lg w-100" {% if isGenerating %}disabled{% endif %}>
+                                {% if isGenerating %}
+                                    <span class="spinner-border spinner-border-sm me-2"></span>Generando...
+                                {% else %}
+                                    <i class="fas fa-magic me-2"></i>Generar Imagen
+                                {% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Ejemplos de prompts -->
+            <div class="card mb-4 prompt-examples">
+                <div class="card-body">
+                    <h6><i class="fas fa-lightbulb text-warning me-2"></i>Ejemplos de prompts:</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled mb-0">
+                                <li>• "cyberpunk cat with neon lights"</li>
+                                <li>• "futuristic city at sunset"</li>
+                                <li>• "abstract geometric art, colorful"</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled mb-0">
+                                <li>• "portrait of a robot, detailed"</li>
+                                <li>• "fantasy landscape with mountains"</li>
+                                <li>• "minimalist logo design, modern"</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estado de carga -->
+            {% if isGenerating %}
+                <div class="card shadow-lg ai-generator-card mb-4">
+                    <div class="card-body text-center py-5">
+                        <div class="loading-spinner mb-4"></div>
+                        <h4>Generando tu imagen...</h4>
+                        <p class="mb-0">La IA está creando una imagen única basada en tu descripción</p>
+                        <small class="text-white-50">Esto puede tomar unos segundos</small>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Errores -->
+            {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                </div>
+            {% endif %}
+
+            <!-- Imagen generada -->
+            {% if generatedImage and generatedImage.image_data %}
+                <div class="card shadow-lg ai-generator-card mb-4">
+                    <div class="card-body text-center py-4">
+                        <h3 class="mb-3"><i class="fas fa-check-circle me-2"></i>¡Imagen generada exitosamente!</h3>
+                        <p class="mb-0">Creada el {{ generatedImage.generated_at }}</p>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="card shadow-lg">
+                            <div class="card-body text-center p-4">
+                                <!-- Imagen generada -->
+                                <img src="data:image/png;base64,{{ generatedImage.image_data }}" 
+                                     alt="Imagen generada por IA" 
+                                     class="img-fluid generated-image mb-4">
+                                
+                                <!-- Información de la generación -->
+                                <div class="bg-light rounded p-3 mb-3">
+                                    <h5 class="text-primary mb-2">Detalles de la generación</h5>
+                                    <p class="mb-1"><strong>Prompt:</strong> "{{ generatedImage.prompt }}"</p>
+                                    <p class="mb-1"><strong>Seed:</strong> {{ generatedImage.seed }}</p>
+                                    <p class="mb-0"><strong>Modelo:</strong> Flux-1-Schnell (Black Forest Labs)</p>
+                                </div>
+
+                                <!-- Acciones -->
+                                <div class="btn-group" role="group">
+                                    <a href="data:image/png;base64,{{ generatedImage.image_data }}" 
+                                       download="ai-generated-{{ generatedImage.seed }}.png" 
+                                       class="btn btn-success">
+                                        <i class="fas fa-download me-1"></i>Descargar
+                                    </a>
+                                    <button type="button" class="btn btn-primary" onclick="shareImage()">
+                                        <i class="fas fa-share me-1"></i>Compartir
+                                    </button>
+                                    <button type="button" class="btn btn-warning" onclick="generateVariation()">
+                                        <i class="fas fa-redo me-1"></i>Generar Variación
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="text-center mt-4">
+                <a href="index.php" class="btn btn-outline-primary">
+                    <i class="fas fa-home me-2"></i>Volver al inicio
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('promptForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const prompt = this.prompt.value;
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('result').innerHTML = '';
+
+  const res = await fetch('/api/image', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt })
+  });
+
+  const data = await res.json();
+
+  document.getElementById('loading').style.display = 'none';
+
+  if (data.image_base64) {
+    document.getElementById('result').innerHTML = 
+      `<img src="data:image/jpeg;base64,${data.image_base64}" alt="Imagen generada">`;
+  } else {
+    document.getElementById('result').textContent = '❌ Error al generar la imagen';
+  }
+});
+</script>
+
+{% endblock %}
+

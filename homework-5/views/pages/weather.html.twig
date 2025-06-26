@@ -1,0 +1,185 @@
+{% extends "layout.html.twig" %}
+
+{% block title %}Clima - Portal APIs{% endblock %}
+
+{% block styles %}
+.weather-clear { background: linear-gradient(135deg, #74b9ff, #0984e3); }
+.weather-clouds { background: linear-gradient(135deg, #a29bfe, #6c5ce7); }
+.weather-rain { background: linear-gradient(135deg, #636e72, #2d3436); }
+.weather-snow { background: linear-gradient(135deg, #ddd, #74b9ff); }
+.weather-default { background: linear-gradient(135deg, #00cec9, #00b894); }
+.weather-icon {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+}
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="text-center mb-5">
+                <i class="fas fa-cloud-sun fa-4x text-info mb-3"></i>
+                <h1 class="display-5">Información del Clima</h1>
+                <p class="lead">Consulta el clima actual en cualquier ciudad del mundo</p>
+                <small class="text-muted">Powered by wttr.in</small>
+            </div>
+
+            <!-- Formulario -->
+            <div class="card shadow-lg mb-4">
+                <div class="card-body">
+                    <form method="POST" class="row g-3">
+                        <div class="col-md-8">
+                            <label for="city" class="form-label">Ciudad</label>
+                            <input type="text" class="form-control form-control-lg" id="city" name="city" 
+                                   value="{{ city }}" placeholder="Ej: Santo Domingo, Madrid, New York..." required>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Puedes usar formato "Ciudad, País" para mejores resultados
+                            </div>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-info btn-lg w-100">
+                                <i class="fas fa-search me-2"></i>Consultar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Errores -->
+            {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                </div>
+            {% endif %}
+
+            <!-- Resultados -->
+            {% if weather %}
+                {% set weatherClass = 'weather-default' %}
+                {% set weatherDesc = weather.current.weather_desc|lower %}
+                {% if 'clear' in weatherDesc or 'sunny' in weatherDesc %}
+                    {% set weatherClass = 'weather-clear' %}
+                {% elseif 'cloud' in weatherDesc or 'overcast' in weatherDesc %}
+                    {% set weatherClass = 'weather-clouds' %}
+                {% elseif 'rain' in weatherDesc or 'drizzle' in weatherDesc or 'shower' in weatherDesc %}
+                    {% set weatherClass = 'weather-rain' %}
+                {% elseif 'snow' in weatherDesc or 'blizzard' in weatherDesc %}
+                    {% set weatherClass = 'weather-snow' %}
+                {% endif %}
+
+                <div class="card shadow-lg {{ weatherClass }} text-white">
+                    <div class="card-body text-center py-5">
+                        <h2 class="display-6 mb-3">
+                            {{ weather.location.name }}
+                            {% if weather.location.country %}
+                                , {{ weather.location.country }}
+                            {% endif %}
+                        </h2>
+                        
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <img src="{{ weather.current.weather_icon }}" 
+                                     alt="{{ weather.current.weather_desc }}" 
+                                     class="weather-icon mb-3 mx-auto d-block">
+                                <h3>{{ weather.current.weather_desc }}</h3>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="display-1 mb-3">{{ weather.current.temp_C }}°C</div>
+                                <p class="h5">Sensación térmica: {{ weather.current.FeelsLikeC }}°C</p>
+                                <p class="h6">({{ weather.current.temp_F }}°F / {{ weather.current.feelsLikeF }}°F)</p>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-6 col-md-3">
+                                <div class="bg-white bg-opacity-25 rounded p-3">
+                                    <i class="fas fa-tint fa-2x mb-2"></i>
+                                    <h6>Humedad</h6>
+                                    <p class="mb-0">{{ weather.current.humidity }}%</p>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="bg-white bg-opacity-25 rounded p-3">
+                                    <i class="fas fa-wind fa-2x mb-2"></i>
+                                    <h6>Viento</h6>
+                                    <p class="mb-0">{{ weather.current.windspeedKmph }} km/h</p>
+                                    <small>{{ weather.current.wind_dir }}</small>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="bg-white bg-opacity-25 rounded p-3">
+                                    <i class="fas fa-thermometer-half fa-2x mb-2"></i>
+                                    <h6>Presión</h6>
+                                    <p class="mb-0">{{ weather.current.pressure }} mb</p>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="bg-white bg-opacity-25 rounded p-3">
+                                    <i class="fas fa-eye fa-2x mb-2"></i>
+                                    <h6>Visibilidad</h6>
+                                    <p class="mb-0">{{ weather.current.visibility }} km</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información adicional -->
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="bg-white bg-opacity-25 rounded p-3">
+                                    <i class="fas fa-sun fa-2x mb-2"></i>
+                                    <h6>Índice UV</h6>
+                                    <p class="mb-0">{{ weather.current.uvIndex }}</p>
+                                </div>
+                            </div>
+                            {% if weather.location.region %}
+                                <div class="col-md-6">
+                                    <div class="bg-white bg-opacity-25 rounded p-3">
+                                        <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
+                                        <h6>Región</h6>
+                                        <p class="mb-0">{{ weather.location.region }}</p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pronóstico del día (si está disponible) -->
+                {% if weather.today_forecast %}
+                    <div class="card shadow-lg mt-4">
+                        <div class="card-body">
+                            <h5><i class="fas fa-calendar-day text-info me-2"></i>Pronóstico de Hoy</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Temperatura máxima:</strong> {{ weather.today_forecast.maxtempC }}°C ({{ weather.today_forecast.maxtempF }}°F)</p>
+                                    <p><strong>Temperatura mínima:</strong> {{ weather.today_forecast.mintempC }}°C ({{ weather.today_forecast.mintempF }}°F)</p>
+                                </div>
+                                <div class="col-md-6">
+                                    {% if weather.today_forecast.astronomy %}
+                                        <p><strong>Amanecer:</strong> {{ weather.today_forecast.astronomy[0].sunrise }}</p>
+                                        <p><strong>Atardecer:</strong> {{ weather.today_forecast.astronomy[0].sunset }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <div class="text-center mt-4">
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="fas fa-home me-2"></i>Volver al inicio
+                </a>
+                {% if weather %}
+                    <a href="/api/weather" class="btn btn-outline-info ms-2">
+                        <i class="fas fa-refresh me-2"></i>Nueva consulta
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

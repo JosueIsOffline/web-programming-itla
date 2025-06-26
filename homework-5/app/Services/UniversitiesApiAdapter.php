@@ -4,7 +4,7 @@ namespace App\Services;
 
 class UniversitiesApiAdapter implements ApiAdapterInterface
 {
-  public function fetch(array $params): array
+  public function fetch(?array $params = []): array
   {
     if (!isset($params['country']) || empty($params['country'])) {
       throw new \InvalidArgumentException("'Country' parameter is required!");

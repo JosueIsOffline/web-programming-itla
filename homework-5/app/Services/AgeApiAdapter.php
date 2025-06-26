@@ -5,7 +5,7 @@ namespace App\Services;
 
 class AgeApiAdapter implements ApiAdapterInterface
 {
-  public function fetch(array $params): array
+  public function fetch(?array $params = []): array
   {
     if (!isset($params['name']) || empty($params['name'])) {
       throw new \InvalidArgumentException('Name is required!');

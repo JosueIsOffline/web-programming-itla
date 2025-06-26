@@ -1,0 +1,194 @@
+{% extends "layout.html.twig" %}
+
+{% block title %}Noticias TechCrunch - Portal APIs{% endblock %}
+
+{% block styles %}
+.news-header {
+    background: linear-gradient(135deg, #0f7b0f, #2d5a2d);
+    color: white;
+}
+.news-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+    overflow: hidden;
+}
+.news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+.news-image {
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+}
+.news-meta {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+.reading-time {
+    background: #e9ecef;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+}
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <!-- Header -->
+            <div class="news-header text-center mb-5 p-5 rounded">
+                <i class="fas fa-newspaper fa-4x mb-3"></i>
+                <h1 class="display-5">Últimas Noticias de TechCrunch</h1>
+                <p class="lead">Las {{news|length}} noticias más recientes sobre tecnología y startups</p>
+            </div>
+
+            <!-- Errores -->
+            {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                    <br>
+                    <small class="mt-2 d-block">
+                        <a href="/api/news" class="btn btn-outline-danger btn-sm mt-2">
+                            <i class="fas fa-refresh me-1"></i>Intentar de nuevo
+                        </a    
+                    </small>
+                </div>
+            {% endif %}
+
+            <!-- Resultados -->
+            {% if news %}
+                <!-- Header de resultados -->
+                <div class="alert alert-success mb-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <div>
+                            <strong>Últimas {{news|length}} noticias de TechCrunch</strong>
+                            <br>
+                            <small>Obtenidas desde: https://techcrunch.com/wp-json/wp/v2/posts</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid de noticias -->
+                <div class="row g-4">
+                    {% for article in news %}
+                        <div class="col-12">
+                            <div class="card news-card shadow-sm h-100">
+                                <div class="row g-0">
+                                    <!-- Imagen destacada -->
+                                    {% if article.featured_image %}
+                                        <div class="col-md-4">
+                                            <img src="{{ article.featured_image }}" 
+                                                 alt="Imagen del artículo" 
+                                                 class="news-image"
+                                                 onerror="this.style.display='none'">
+                                        </div>
+                                        <div class="col-md-8">
+                                    {% else %}
+                                        <div class="col-12">
+                                    {% endif %}
+                                        <div class="card-body h-100 d-flex flex-column">
+                                            <!-- Título -->
+                                            <h5 class="card-title mb-3">
+                                                <a href="{{ article.link }}" target="_blank" 
+                                                   class="text-decoration-none text-dark">
+                                                    {{ article.title }}
+                                                </a>
+                                            </h5>
+                                            
+                                            <!-- Excerpt -->
+                                            <p class="card-text flex-grow-1">
+                                                {{ article.excerpt }}
+                                            </p>
+                                            
+                                            <!-- Metadata -->
+                                            <div class="news-meta mb-3">
+                                                <div class="row align-items-center">
+                                                    <div class="col-md-6">
+                                                        <i class="fas fa-user me-1"></i>
+                                                        <span>{{ article.author }}</span>
+                                                    </div>
+                                                    <div class="col-md-6 text-md-end">
+                                                        {% if article.reading_time != 'N/A' %}
+                                                            <span class="reading-time">
+                                                                <i class="fas fa-clock me-1"></i>
+                                                                {{ article.reading_time }}
+                                                            </span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                <div class="mt-2">
+                                                    <i class="fas fa-calendar me-1"></i>
+                                                    <span>{{ new.date|date('d/m/Y H:i') }}</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Acciones -->
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <a href="{{ article.link }}" target="_blank" 
+                                                   class="btn btn-success">
+                                                    <i class="fas fa-external-link-alt me-1"></i>
+                                                    Leer en TechCrunch
+                                                </a>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm" 
+                                                        onclick="copyLink('{{ article.link }}')">
+                                                    <i class="fas fa-copy me-1"></i>Copiar enlace
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Información adicional -->
+                <div class="card mt-4 bg-light">
+                    <div class="card-body text-center">
+                        <h6><i class="fas fa-info-circle text-success me-2"></i>Información de la API</h6>
+                        <p class="mb-0 text-muted">
+                            Datos obtenidos de la <strong>API REST de WordPress de TechCrunch</strong>
+                            <br>
+                            <small>Endpoint: <code>https://techcrunch.com/wp-json/wp/v2/posts</code></small>
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="text-center mt-4">
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="fas fa-home me-2"></i>Volver al inicio
+                </a>
+                <a href="/api/news" class="btn btn-outline-success ms-2">
+                    <i class="fas fa-refresh me-2"></i>Actualizar noticias
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyLink(url) {
+    navigator.clipboard.writeText(url).then(() => {
+        // Mostrar notificación temporal
+        const toast = document.createElement('div');
+        toast.className = 'alert alert-success position-fixed';
+        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        toast.innerHTML = '<i class="fas fa-check me-2"></i>Enlace copiado al portapapeles';
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            if (document.body.contains(toast)) {
+                document.body.removeChild(toast);
+            }
+        }, 3000);
+    }).catch(() => {
+        alert('No se pudo copiar el enlace');
+    });
+}
+</script>
+{% endblock %}
+

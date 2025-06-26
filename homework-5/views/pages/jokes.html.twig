@@ -1,0 +1,95 @@
+{% extends "layout.html.twig" %}
+
+{% block title %}Generador de Chistes - Portal APIs{% endblock %}
+
+{% block styles %}
+.joke-card {
+    background: linear-gradient(135deg, #fdcb6e, #e17055);
+    color: white;
+    border-radius: 20px;
+}
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="text-center mb-5">
+                <i class="fas fa-laugh fa-4x text-warning mb-3"></i>
+                <h1 class="display-5">Generador de Chistes</h1>
+                <p class="lead">¡Ríete con chistes aleatorios en inglés!</p>
+            </div>
+
+            <!-- Errores -->
+            {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                </div>
+            {% endif %}
+
+            <!-- Chiste -->
+            {% if joke %}
+                <div class="card shadow-lg joke-card mb-4">
+                    <div class="card-body text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-quote-left fa-2x mb-3"></i>
+                            <h3 class="mb-4">{{ joke.setup }}</h3>
+                            <div class="border-top border-white border-opacity-25 pt-4">
+                                <h4 class="fw-bold">{{ joke.punchline }}</h4>
+                            </div>
+                            <i class="fas fa-quote-right fa-2x mt-3"></i>
+                        </div>
+                        
+                        <div class="bg-white bg-opacity-25 rounded p-3 d-inline-block">
+                            <small>Categoría: <strong>{{ joke.type|title }}</strong></small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón para nuevo chiste -->
+                <div class="text-center mb-4">
+                    <a href="/api/jokes" class="btn btn-warning btn-lg">
+                        <i class="fas fa-redo me-2"></i>¡Otro chiste!
+                    </a>
+                </div>
+
+                <!-- Reacciones -->
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="mb-3">¿Qué te pareció el chiste?</h5>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-success" onclick="react('😂')">
+                                😂 Muy gracioso
+                            </button>
+                            <button type="button" class="btn btn-outline-warning" onclick="react('😊')">
+                                😊 Está bien
+                            </button>
+                            <button type="button" class="btn btn-outline-danger" onclick="react('😐')">
+                                😐 No me gustó
+                            </button>
+                        </div>
+                        <div id="reaction-result" class="mt-3"></div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="text-center mt-4">
+                <a href="index.php" class="btn btn-outline-primary">
+                    <i class="fas fa-home me-2"></i>Volver al inicio
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function react(emoji) {
+    const result = document.getElementById('reaction-result');
+    result.innerHTML = `<div class="alert alert-info">¡Gracias por tu reacción! ${emoji}</div>`;
+    setTimeout(() => {
+        result.innerHTML = '';
+    }, 3000);
+}
+</script>
+{% endblock %}
+

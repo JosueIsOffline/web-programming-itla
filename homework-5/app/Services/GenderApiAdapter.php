@@ -4,7 +4,7 @@ namespace App\Services;
 
 class GenderApiAdapter implements ApiAdapterInterface
 {
-  public function fetch(array $params): array
+  public function fetch(?array $params = []): array
   {
 
     if (!isset($params['name']) || empty($params['name'])) {

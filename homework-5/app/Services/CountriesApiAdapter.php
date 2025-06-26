@@ -4,7 +4,7 @@ namespace App\Services;
 
 class CountriesApiAdapter implements ApiAdapterInterface
 {
-  public function fetch(array $params): array
+  public function fetch(?array $params = []): array
   {
     $country = $params['country'];
     $url = "https://restcountries.com/v3.1/name/$country";
