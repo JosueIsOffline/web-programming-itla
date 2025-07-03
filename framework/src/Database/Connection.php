@@ -3,28 +3,56 @@
 namespace JosueIsOffline\Framework\Database;
 
 use PDO;
+use PDOException;
 
 class Connection
 {
-  public static $instance = null;
-  private ?PDO $pdo = null;
+  private PDO $pdo;
+  private ?array $config = [];
 
-  private function __construct(string $connectionString)
+  public function __construct(PDO $pdo, ?array $config = [])
   {
-    $this->pdo = new PDO($connectionString);
+    $this->pdo = $pdo;
+    $this->config = $config;
   }
 
-  public static function create(string $connectionString): static
+
+  public function query(string $sql, array $params = []): \PDOStatement
   {
-    if (static::$instance === null) {
-      static::$instance = new static($connectionString);
+    try {
+      $stmt = $this->pdo->prepare($sql);
+      $stmt->execute($params);
+
+      return $stmt;
+    } catch (PDOException $e) {
+      throw new DatabaseException(
+        "Error in query [{$e->getCode()}]: {$e->getMessage()} SQL: '$sql'"
+      );
     }
-
-    return static::$instance;
   }
 
-  public static function getConnection(): static
+  public function fetchAll(string $sql, array $params = []): array
   {
-    return static::$instance;
+    return $this->query($sql, $params)->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public function fetchOne(string $sql, array $params =  []): ?array
+  {
+    $stmt = $this->query($sql, $params);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return $row !== false ? $row : null;
+  }
+
+  public function execute(string $sql, array $params = []): bool
+  {
+    $this->query($sql, $params);
+
+    return true;
+  }
+
+  public function lastInsertId(): string
+  {
+    return $this->pdo->lastInsertId();
   }
 }

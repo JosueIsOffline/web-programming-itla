@@ -1,0 +1,1 @@
+{"version":1,"defects":{"ConnectionTest::testFetchOne":7,"ConnectionTest::testfetchAll":7,"ConnectionTest::testFactory":8},"times":{"ConnectionTest::testQueryReturnsPdoStatement":0,"ConnectionTest::testFetchOne":0,"ConnectionTest::testfetchAll":0,"ConnectionTest::testFactory":0.001}}

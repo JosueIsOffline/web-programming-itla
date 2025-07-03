@@ -11,8 +11,14 @@
       "name": "JosueIsOffline"
     }
   ],
+  "scripts": {
+    "test": "./vendor/bin/phpunit"
+  },
   "require": {
     "nikic/fast-route": "^1.3",
     "twig/twig": "^3.21"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^12.2"
   }
 }
