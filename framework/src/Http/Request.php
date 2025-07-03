@@ -41,6 +41,16 @@ class Request
     return $this->server['REQUEST_URI'];
   }
 
+  public function getPathInfo(): string
+  {
+    $uri = $this->getUri();
+    // Remove query string if present
+    if (($pos = strpos($uri, '?')) !== false) {
+      $uri = substr($uri, 0, $pos);
+    }
+    return $uri;
+  }
+
   public function getPostParams(string $name): string
   {
     return $this->post[$name];

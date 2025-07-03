@@ -38,7 +38,7 @@
                             Datos de Conexión
                         </h3>
 
-                        <form method="POST" action="/wizard" class="space-y-4" id="dbForm">
+                        <form method="POST" action="{{ wizard_route }}" class="space-y-4" id="dbForm">
                             <input type="hidden" name="step" value="2">
                             
                             <!-- Selector de Driver -->
@@ -271,7 +271,7 @@
                             </div>
                         {% endif %}
 
-                        <form method="POST" action="/wizard">
+                        <form method="POST" action="{{ wizard_route }}">
                             <input type="hidden" name="step" value="3">
                             <input type="hidden" name="driver" value="{{ config.driver|default('') }}">
                             <input type="hidden" name="host" value="{{ config.host|default('') }}">
@@ -322,7 +322,7 @@
                             </div>
                         {% endif %}
 
-                        <form method="POST" action="/wizard">
+                        <form method="POST" action="{{ wizard_route}}">
                             <input type="hidden" name="step" value="4">
                             <input type="hidden" name="driver" value="{{ config.driver|default('') }}">
                             <input type="hidden" name="host" value="{{ config.host|default('') }}">
@@ -352,7 +352,7 @@
                             Configura las tablas y campos que deseas crear en tu base de datos.
                         </p>
 
-                        <form method="POST" action="/wizard" id="tablesForm">
+                        <form method="POST" action="{{ wizard_route }}" id="tablesForm">
                             <input type="hidden" name="step" value="5">
                             <input type="hidden" name="driver" value="{{ config.driver|default('') }}">
                             <input type="hidden" name="host" value="{{ config.host|default('') }}">
@@ -493,7 +493,7 @@
                             </div>
                         {% endif %}
 
-                        <form method="POST" action="/wizard">
+                        <form method="POST" action="{{ wizard_route }}">
                             <input type="hidden" name="step" value="6">
                             <input type="hidden" name="driver" value="{{ config.driver|default('') }}">
                             <input type="hidden" name="host" value="{{ config.host|default('') }}">

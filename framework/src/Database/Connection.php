@@ -8,12 +8,12 @@ use PDOException;
 class Connection
 {
   private PDO $pdo;
-  private ?array $config = [];
+  // private ?array $config = [];
 
-  public function __construct(PDO $pdo, ?array $config = [])
+  public function __construct(PDO $pdo)
   {
     $this->pdo = $pdo;
-    $this->config = $config;
+    // $this->config = $config;
   }
 
 

@@ -13,13 +13,16 @@ class ViewResolver
 
   public function __construct(?string $baseViewPath = null)
   {
-    $this->baseViewPath = $baseViewPath ?? BASE_PATH . '/views';
+    $this->baseViewPath = $baseViewPath ?? (defined('BASE_PATH') ? BASE_PATH . '/views' : __DIR__ . '/../../views');
     $this->setupTwig();
   }
 
   private function setupTwig(): void
   {
     $this->scanViewDirectories();
+
+    // Add framework template directories
+    $this->addFrameworkPaths();
 
     $loader = new FilesystemLoader($this->viewPaths);
     $this->twig = new Environment($loader, [
@@ -28,20 +31,34 @@ class ViewResolver
     ]);
   }
 
-  private function scanViewDirectories(): void
+  private function addFrameworkPaths(): void
   {
-    if (!is_dir($this->baseViewPath)) {
-      throw new \RuntimeException("The directory of view doesn't exits: {$this->baseViewPath}");
+    // Add framework templates directory
+    $frameworkTemplatesPath = __DIR__ . '/../Templates';
+    if (is_dir($frameworkTemplatesPath)) {
+      $this->viewPaths[] = $frameworkTemplatesPath;
+      $this->scanNestedDirectories($frameworkTemplatesPath);
     }
 
-    $this->viewPaths[] = $this->baseViewPath;
+    // Also add the wizard specific directory
+    $wizardPath = __DIR__ . '/../Templates/wizard';
+    if (is_dir($wizardPath)) {
+      $this->viewPaths[] = $wizardPath;
+    }
+  }
 
-    $directories = glob($this->baseViewPath . '/*', GLOB_ONLYDIR);
+  private function scanViewDirectories(): void
+  {
+    // Only scan if base view path exists (project views)
+    if (is_dir($this->baseViewPath)) {
+      $this->viewPaths[] = $this->baseViewPath;
 
-    foreach ($directories as $directory) {
-      $this->viewPaths[] = $directory;
+      $directories = glob($this->baseViewPath . '/*', GLOB_ONLYDIR);
 
-      $this->scanNestedDirectories($directory);
+      foreach ($directories as $directory) {
+        $this->viewPaths[] = $directory;
+        $this->scanNestedDirectories($directory);
+      }
     }
   }
 
@@ -60,7 +77,7 @@ class ViewResolver
     try {
       return $this->twig->render($template, $data);
     } catch (\Twig\Error\LoaderError $e) {
-      throw new \RuntimeException("View not found: {$template}. Routes availables: " . implode(', ', $this->viewPaths));
+      throw new \RuntimeException("View not found: {$template}. Routes available: " . implode(', ', $this->viewPaths));
     }
   }
 

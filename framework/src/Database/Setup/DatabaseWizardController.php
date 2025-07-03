@@ -1,43 +1,46 @@
 <?php
 
-namespace JosueIsOffline\Framework\Database\Setup;
+namespace App\Controllers;
 
+use JosueIsOffline\Framework\Controllers\AbstractController;
 use JosueIsOffline\Framework\Http\Response;
-use JosueIsOffline\Framework\Http\Request;
 use JosueIsOffline\Framework\Database\DatabaseBootstrap;
 use JosueIsOffline\Framework\Database\Factories\ConnectionFactory;
-use JosueIsOffline\Framework\Controllers\AbstractController;
+use JosueIsOffline\Framework\Database\Setup\WizardRoutes;
 
 class DatabaseWizardController extends AbstractController
 {
-  private DatabaseBootstrap $bootstrap;
+  private $step = 1;
 
-  public function __construct()
+  private function getWizardRoute(): string
   {
-    $this->bootstrap = new DatabaseBootstrap();
+    return WizardRoutes::getRoute();
+  }
+
+  private function getConfigDir(): string
+  {
+    return defined('BASE_PATH') ? BASE_PATH . '/config' : __DIR__ . '/../../config';
   }
 
   public function index(): Response
   {
-    // Check if we already have a config file
-    if ($this->bootstrap->configFileExist()) {
-      // Redirect to app if already configured
+    $bootstrap = new DatabaseBootstrap();
+    if ($bootstrap->configFileExist()) {
       return new Response('', 302, ['Location' => '/']);
     }
 
     $method = $this->request->getMethod();
 
     if ($method === 'GET') {
-      return $this->render('framework/database-wizard.html.twig', [
-        'step' => 1,
+      return $this->render('database-wizard.html.twig', [
+        'step' => $this->step,
         'config' => [],
-        'tables' => [],
         'error' => '',
-        'success' => ''
+        'success' => '',
+        'wizard_route' => $this->getWizardRoute()
       ]);
     }
 
-    // Handle POST request
     $params = $this->request->getAllPost();
     $step = (int) ($params['step'] ?? 1);
 
@@ -53,33 +56,36 @@ class DatabaseWizardController extends AbstractController
       case 6:
         return $this->handleFinalSave($params);
       default:
-        return $this->render('framework/database-wizard.html.twig', [
+        return $this->render('database-wizard.html.twig', [
           'step' => 1,
           'config' => [],
-          'tables' => [],
           'error' => '',
-          'success' => ''
+          'success' => '',
+          'wizard_route' => $this->getWizardRoute()
         ]);
     }
+  }
+
+  private function renderWithRoute(string $template, array $data = []): Response
+  {
+    $data['wizard_route'] = $this->getWizardRoute();
+    return $this->render($template, $data);
   }
 
   private function handleConnectionTest($params): Response
   {
     $config = $this->buildConfig($params);
 
-    // Validate required fields
     $validation = $this->validateConfig($config);
     if (!$validation['valid']) {
-      return $this->render('framework/database-wizard.html.twig', [
+      return $this->renderWithRoute('database-wizard.html.twig', [
         'step' => 1,
         'config' => $config,
-        'tables' => [],
         'error' => $validation['error'],
         'success' => ''
       ]);
     }
 
-    // Test connection
     try {
       if ($config['driver'] === 'sqlite') {
         $factory = new ConnectionFactory();
@@ -94,20 +100,18 @@ class DatabaseWizardController extends AbstractController
         $connection->query('SELECT 1');
       }
 
-      return $this->render('framework/database-wizard.html.twig', [
+      return $this->renderWithRoute('database-wizard.html.twig', [
         'step' => 2,
         'config' => $config,
-        'tables' => [],
         'error' => '',
-        'success' => 'Conexión al servidor establecida correctamente'
+        'success' => 'Connection established successfully'
       ]);
     } catch (\Exception $e) {
-      return $this->render('framework/database-wizard.html.twig', [
-        'step' => 1,
+      return $this->renderWithRoute('database-wizard.html.twig', [
+        'step' => 2,
         'config' => $config,
-        'tables' => [],
-        'error' => 'Error de conexión: ' . $e->getMessage(),
-        'success' => ''
+        'error' => '',
+        'success' => 'Connection established successfully'
       ]);
     }
   }
@@ -117,29 +121,25 @@ class DatabaseWizardController extends AbstractController
     $config = $this->buildConfig($params);
 
     try {
-      // Create database if it doesn't exist (for server-based databases)
       if ($config['driver'] !== 'sqlite') {
         $this->createDatabase($config);
       }
 
-      // Test connection with the database
       $factory = new ConnectionFactory();
       $connection = $factory->create($config);
       $connection->query('SELECT 1');
 
-      return $this->render('framework/database-wizard.html.twig', [
+      return $this->render('database-wizard.html.twig', [
         'step' => 3,
         'config' => $config,
-        'tables' => [],
         'error' => '',
-        'success' => 'Base de datos creada exitosamente. Ahora configuremos las tablas.'
+        'success' => 'Database created successfully. Now let\'s configure tables.'
       ]);
     } catch (\Exception $e) {
-      return $this->render('framework/database-wizard.html.twig', [
+      return $this->render('database-wizard.html.twig', [
         'step' => 2,
         'config' => $config,
-        'tables' => [],
-        'error' => 'Error al crear la base de datos: ' . $e->getMessage(),
+        'error' => 'Error creating database: ' . $e->getMessage(),
         'success' => ''
       ]);
     }
@@ -149,27 +149,24 @@ class DatabaseWizardController extends AbstractController
   {
     $config = $this->buildConfig($params);
 
-    // If we're coming from step 3, show the table configuration form
     if (!isset($params['table_names']) || empty($params['table_names'])) {
-      return $this->render('framework/database-wizard.html.twig', [
+      return $this->render('database-wizard.html.twig', [
         'step' => 4,
         'config' => $config,
-        'tables' => [],
         'error' => '',
         'success' => ''
       ]);
     }
 
-    // Process table configuration and show step 5
     $tables = $this->buildTablesConfig($params);
     $config['tables'] = $tables;
 
-    return $this->render('framework/database-wizard.html.twig', [
+    return $this->render('database-wizard.html.twig', [
       'step' => 5,
       'config' => $config,
       'tables' => $tables,
       'error' => '',
-      'success' => 'Configuración de tablas procesada correctamente'
+      'success' => 'Table configuration processed successfully'
     ]);
   }
 
@@ -186,19 +183,18 @@ class DatabaseWizardController extends AbstractController
         $this->createCustomTable($connection, $table, $config['driver']);
       }
 
-      return $this->render('framework/database-wizard.html.twig', [
+      return $this->render('database-wizard.html.twig', [
         'step' => 5,
         'config' => $config,
         'tables' => $tables,
         'error' => '',
-        'success' => 'Todas las tablas han sido creadas exitosamente'
+        'success' => 'All tables have been created successfully'
       ]);
     } catch (\Exception $e) {
-      return $this->render('framework/database-wizard.html.twig', [
+      return $this->render('database-wizard.html.twig', [
         'step' => 4,
         'config' => $config,
-        'tables' => [],
-        'error' => 'Error al crear las tablas: ' . $e->getMessage(),
+        'error' => 'Error creating tables: ' . $e->getMessage(),
         'success' => ''
       ]);
     }
@@ -211,21 +207,34 @@ class DatabaseWizardController extends AbstractController
     $config['tables'] = $tables;
 
     try {
-      $this->bootstrap->saveConfig($config);
+      $bootstrap = new DatabaseBootstrap();
 
-      return $this->render('framework/database-wizard.html.twig', [
+      $configDir = $this->getConfigDir();
+
+      if (!is_dir($configDir)) {
+        if (!mkdir($configDir, 0755, true)) {
+          throw new \Exception("Could not create config directory");
+        }
+      }
+
+      if (!is_writable($configDir)) {
+        throw new \Exception("Config directory is not writable");
+      }
+
+      $bootstrap->saveConfig($config);
+
+      return $this->render('database-wizard.html.twig', [
         'step' => 6,
         'config' => $config,
         'tables' => $tables,
         'error' => '',
-        'success' => 'Configuración guardada exitosamente'
+        'success' => 'Configuration saved successfully'
       ]);
     } catch (\Exception $e) {
-      return $this->render('framework/database-wizard.html.twig', [
+      return $this->render('database-wizard.html.twig', [
         'step' => 5,
         'config' => $config,
-        'tables' => $tables,
-        'error' => 'Error al guardar la configuración: ' . $e->getMessage(),
+        'error' => 'Error saving configuration: ' . $e->getMessage(),
         'success' => ''
       ]);
     }
@@ -270,22 +279,22 @@ class DatabaseWizardController extends AbstractController
   private function validateConfig($config): array
   {
     if (empty($config['driver'])) {
-      return ['valid' => false, 'error' => 'Debe seleccionar un driver de base de datos'];
+      return ['valid' => false, 'error' => 'You must select a database driver'];
     }
 
     if ($config['driver'] === 'sqlite') {
       if (empty($config['database'])) {
-        return ['valid' => false, 'error' => 'Debe especificar la ruta del archivo SQLite'];
+        return ['valid' => false, 'error' => 'You must specify the SQLite file path'];
       }
     } else {
       if (empty($config['host'])) {
-        return ['valid' => false, 'error' => 'Debe especificar el servidor'];
+        return ['valid' => false, 'error' => 'You must specify the server'];
       }
       if (empty($config['database'])) {
-        return ['valid' => false, 'error' => 'Debe especificar el nombre de la base de datos'];
+        return ['valid' => false, 'error' => 'You must specify the database name'];
       }
       if (empty($config['username'])) {
-        return ['valid' => false, 'error' => 'Debe especificar el usuario'];
+        return ['valid' => false, 'error' => 'You must specify the username'];
       }
     }
 
@@ -318,14 +327,12 @@ class DatabaseWizardController extends AbstractController
               'auto_increment' => isset($params['field_auto_increment'][$index][$fieldIndex])
             ];
 
-            // Validation: Auto increment fields should be INT and PRIMARY KEY
             if ($field['auto_increment']) {
               $field['type'] = 'INT';
               $field['primary_key'] = true;
               $field['nullable'] = false;
             }
 
-            // Validation: Primary keys should not be nullable
             if ($field['primary_key']) {
               $field['nullable'] = false;
             }
@@ -334,7 +341,6 @@ class DatabaseWizardController extends AbstractController
           }
         }
 
-        // Ensure table has at least one field
         if (count($table['fields']) > 0) {
           $tables[] = $table;
         }
@@ -346,7 +352,6 @@ class DatabaseWizardController extends AbstractController
 
   private function createDatabase($config): void
   {
-    // Connect without database to create it
     $tempConfig = $config;
     unset($tempConfig['database']);
 
@@ -378,7 +383,11 @@ class DatabaseWizardController extends AbstractController
         throw new \Exception("Database creation not supported for driver: {$config['driver']}");
     }
 
-    $connection->execute($sql);
+    try {
+      $connection->execute($sql);
+    } catch (\Exception $e) {
+      throw $e;
+    }
   }
 
   private function createCustomTable($connection, $table, $driver): void
@@ -387,10 +396,9 @@ class DatabaseWizardController extends AbstractController
     $fields = $table['fields'];
 
     if (empty($fields)) {
-      throw new \Exception("La tabla '$tableName' debe tener al menos un campo");
+      throw new \Exception("Table '$tableName' must have at least one field");
     }
 
-    // Different quote styles for different drivers
     $quote = match ($driver) {
       'mysql' => '`',
       'pgsql' => '"',
@@ -415,7 +423,6 @@ class DatabaseWizardController extends AbstractController
     $sql .= implode(', ', $fieldSql);
     $sql .= ")";
 
-    // Add engine and charset for MySQL
     if ($driver === 'mysql') {
       $sql .= " ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
     }
@@ -432,7 +439,6 @@ class DatabaseWizardController extends AbstractController
     $primaryKey = $field['primary_key'];
     $autoIncrement = $field['auto_increment'];
 
-    // Different quote styles for different drivers
     $quote = match ($driver) {
       'mysql' => '`',
       'pgsql' => '"',
@@ -448,7 +454,6 @@ class DatabaseWizardController extends AbstractController
 
     $definition = "{$quote}{$name}{$closeQuote} ";
 
-    // Build type with length
     switch (strtoupper($type)) {
       case 'VARCHAR':
         $len = $length ?: '255';
@@ -480,23 +485,19 @@ class DatabaseWizardController extends AbstractController
         break;
     }
 
-    // Nullable
     if (!$nullable) {
       $definition .= " NOT NULL";
     }
 
-    // Auto increment (driver specific)
     if ($autoIncrement) {
       switch ($driver) {
         case 'mysql':
           $definition .= " AUTO_INCREMENT";
           break;
         case 'pgsql':
-          // PostgreSQL uses SERIAL instead
           $definition = "{$quote}{$name}{$closeQuote} SERIAL";
           break;
         case 'sqlite':
-          // SQLite AUTOINCREMENT only for INTEGER PRIMARY KEY
           if ($primaryKey) {
             $definition .= " AUTOINCREMENT";
           }
@@ -504,13 +505,9 @@ class DatabaseWizardController extends AbstractController
         case 'sqlsrv':
           $definition .= " IDENTITY(1,1)";
           break;
-        default:
-          // No auto increment for unknown drivers
-          break;
       }
     }
 
-    // Primary key
     if ($primaryKey) {
       $definition .= " PRIMARY KEY";
     }

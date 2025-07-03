@@ -9,14 +9,12 @@ class FrameworkBootstrap
 {
   public static function boot(): void
   {
-    // Boot the database
     $dbBootstrap = new DatabaseBootstrap();
     $dbBootstrap->boot();
   }
 
   public static function registerSystemRoutes($routeLoader): void
   {
-    // Register wizard routes if database is not configured
     if (self::needsSetup()) {
       $wizardRoutes = WizardRoutes::register();
       foreach ($wizardRoutes as $route) {
@@ -33,11 +31,11 @@ class FrameworkBootstrap
 
   public static function handleSetupRedirect($request): ?string
   {
-    // If setup is needed and user is not on wizard page, redirect
     if (self::needsSetup()) {
       $path = $request->getPathInfo();
-      if ($path !== '/framework/database-wizard') {
-        return '/framework/database-wizard';
+      $wizardRoute = WizardRoutes::getRoute();
+      if ($path !== $wizardRoute) {
+        return $wizardRoute;
       }
     }
     return null;
