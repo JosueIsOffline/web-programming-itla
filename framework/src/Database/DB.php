@@ -23,7 +23,10 @@ class DB
     return self::$connection;
   }
 
-  // public function table(string $name): QueryBuilder {}
+  public static function table(string $name): QueryBuilder
+  {
+    return (new QueryBuilder(static::connection()))->table($name);
+  }
 
   public static function raw(string $sql, array $params = []): mixed
   {
