@@ -1,0 +1,161 @@
+{% extends "layout.html.twig" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">Characters</h2>
+        <p class="text-muted mb-0">Manage your character collection</p>
+    </div>
+    <a href="/create" class="btn-primary-clean">
+        <i class="bi bi-plus-lg"></i>
+        Add Character
+    </a>
+</div>
+
+{% if personajes is empty %}
+    <div class="card-clean">
+        <div class="text-center py-5">
+            <i class="bi bi-people" style="font-size: 4rem; color: #cbd5e1;"></i>
+            <h3 class="mt-3 mb-2">No characters found</h3>
+            <p class="text-muted mb-4">Get started by creating your first character</p>
+            <a href="/create" class="btn-primary-clean">
+                <i class="bi bi-plus-lg"></i>
+                Create First Character
+            </a>
+        </div>
+    </div>
+{% else %}
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card-clean stats-card">
+                <i class="bi bi-people" style="font-size: 2rem; color: var(--primary-color);"></i>
+                <h3 class="stats-number">{{ personajes|length }}</h3>
+                <p class="stats-label">Total Characters</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card-clean stats-card">
+                <i class="bi bi-bar-chart" style="font-size: 2rem; color: var(--warning-color);"></i>
+                <h3 class="stats-number">
+                    {% set total_nivel = 0 %}
+                    {% for personaje in personajes %}
+                        {% set total_nivel = total_nivel + personaje.nivel %}
+                    {% endfor %}
+                    {{ (total_nivel / personajes|length)|round(1) }}
+                </h3>
+                <p class="stats-label">Average Level</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Characters Table -->
+    <div class="table-responsive">
+        <table class="table table-clean">
+            <thead>
+                <tr>
+                    <th>Character</th>
+                    <th>Type</th>
+                    <th>Color</th>
+                    <th>Level</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for personaje in personajes %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            {% if personaje.foto %}
+                                <img src="{{ personaje.foto }}" 
+                                     alt="{{ personaje.nombre }}" 
+                                     class="character-avatar me-3">
+                            {% else %}
+                                <div class="character-avatar me-3 d-flex align-items-center justify-content-center bg-light">
+                                    <i class="bi bi-person text-muted"></i>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <div class="fw-semibold">{{ personaje.nombre }}</div>
+                                <small class="text-muted">#{{ personaje.id }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="text-muted">{{ personaje.tipo }}</span>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle me-2" 
+                                 style="width: 16px; height: 16px; background-color: {{ personaje.color|lower }};"></div>
+                            {{ personaje.color }}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge level-indicator">
+                            {{ personaje.nivel }}/10
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-sm-clean btn-edit" 
+                                    onclick="window.location.href='/{{ personaje.id }}/edit'"
+                                    title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn-sm-clean btn-pdf" 
+                                    onclick="window.location.href='index.php?action=pdf&id={{ personaje.id }}'"
+                                    title="Download PDF">
+                                <i class="bi bi-file-earmark-pdf"></i>
+                            </button>
+                            <button class="btn-sm-clean btn-delete" 
+                                    onclick="confirmarEliminacion({{ personaje.id }}, '{{ personaje.nombre }}')"
+                                    title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+                    Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="personajeNombre"></strong>?</p>
+                <p class="text-muted small mb-0">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn-secondary-clean" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="confirmarEliminar" class="btn-danger-clean">
+                    <i class="bi bi-trash me-1"></i>
+                    Delete
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function confirmarEliminacion(id, nombre) {
+    document.getElementById('personajeNombre').textContent = nombre;
+    fetch(`/delete/${id}`, { method: "POST"}).then(() => alert(`${nombre} eliminado`));
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}
+
