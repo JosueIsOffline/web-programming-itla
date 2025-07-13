@@ -1,0 +1,123 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Registrar Visita - Sistema de Visitas{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header text-center">
+                <h4 class="mb-1">Registrar Nueva Visita</h4>
+                <p class="text-muted mb-0">Complete los datos del visitante</p>
+            </div>
+            
+            <div class="card-body">
+                <!-- Mensajes -->
+                {% if mensaje %}
+                    <div class="alert alert-{{ tipo_mensaje|default('info') }}" role="alert">
+                        {{ mensaje }}
+                    </div>
+                {% endif %}
+
+                <!-- Formulario -->
+                <form method="POST" action="{% if action == "edit"%}/edit-view/{{datos.id}}{% else %}/view/create{% endif %}">
+                    {% if action == 'edit' %}
+                        <input type="hidden" name="id" value="{{ datos.id }}">
+                    {% endif %}
+                    <!-- Nombre -->
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">
+                            Nombre <span class="text-danger">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="nombre" 
+                            name="nombre" 
+                            placeholder="Ingrese el nombre"
+                            value="{{ datos.nombre|default('') }}"
+                            required
+                            maxlength="50"
+                        >
+                    </div>
+
+                    <!-- Apellido -->
+                    <div class="mb-3">
+                        <label for="apellido" class="form-label">
+                            Apellido <span class="text-danger">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="apellido" 
+                            name="apellido" 
+                            placeholder="Ingrese el apellido"
+                            value="{{ datos.apellido|default('') }}"
+                            required
+                            maxlength="50"
+                        >
+                    </div>
+
+                    <!-- Teléfono -->
+                    <div class="mb-3">
+                        <label for="telefono" class="form-label">
+                            Teléfono <span class="text-danger">*</span>
+                        </label>
+                        <input 
+                            type="tel" 
+                            class="form-control" 
+                            id="telefono" 
+                            name="telefono" 
+                            placeholder="Ej: +1234567890"
+                            value="{{ datos.telefono|default('') }}"
+                            required
+                            maxlength="20"
+                        >
+                    </div>
+
+                    <!-- Correo -->
+                    <div class="mb-4">
+                        <label for="correo" class="form-label">
+                            Correo Electrónico <span class="text-danger">*</span>
+                        </label>
+                        <input 
+                            type="email" 
+                            class="form-control" 
+                            id="correo" 
+                            name="email" 
+                            placeholder="ejemplo@correo.com"
+                            value="{{ datos.email|default('') }}"
+                            required
+                            maxlength="100"
+                        >
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/" class="btn btn-light me-md-2">
+                            Cancelar
+                        </a>
+                        <button type="reset" class="btn btn-light me-md-2">
+                            Limpiar
+                        </button>
+                        <button type="submit" class="btn btn-primary" onclick="return confirmarAccion('¿Confirma el registro de esta visita?')">
+                            Registrar Visita
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Información -->
+        <div class="alert alert-info mt-4">
+            <h6 class="mb-2">Información</h6>
+            <ul class="mb-0 small">
+                <li>Todos los campos marcados con * son obligatorios</li>
+                <li>Verifique que los datos estén correctos antes de enviar</li>
+                <li>La visita aparecerá inmediatamente en el listado</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

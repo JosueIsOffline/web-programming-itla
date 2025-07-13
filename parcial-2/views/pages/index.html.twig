@@ -1,0 +1,124 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Inicio - Sistema de Visitas{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero">
+    <h1 class="mb-3">Sistema de Registro de Visitas</h1>
+    <p class="text-muted mb-4">
+        Gestiona las visitas de tu empresa de manera simple y eficiente
+    </p>
+    <div class="d-flex gap-3 justify-content-center">
+        <a href="/create/view" class="btn btn-primary">
+            <i class="bi bi-person-plus me-2"></i>
+            Registrar Visita
+        </a>
+        <a href="/views" class="btn btn-outline-primary">
+            <i class="bi bi-list me-2"></i>
+            Ver Listado
+        </a>
+    </div>
+</div>
+
+<!-- Estadísticas -->
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="stats-card">
+            <i class="bi bi-people fs-3 text-muted mb-2"></i>
+            <div class="stats-number">{{ total_visitas|default(0) }}</div>
+            <div class="stats-label">Total de Visitas</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card">
+            <i class="bi bi-calendar-day fs-3 text-muted mb-2"></i>
+            <div class="stats-number">{{ visitas_hoy|default(0) }}</div>
+            <div class="stats-label">Visitas Hoy</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card">
+            <i class="bi bi-clock fs-3 text-muted mb-2"></i>
+            <div class="stats-number">{{ visitas_mes|default(0) }}</div>
+            <div class="stats-label">Este Mes</div>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones -->
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="mb-3">Registrar Nueva Visita</h5>
+                <p class="text-muted mb-4">
+                    Añade un nuevo visitante al sistema con sus datos básicos
+                </p>
+                <a href="/create/view" class="btn btn-primary">
+                    Ir al Formulario
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="mb-3">Ver Todas las Visitas</h5>
+                <p class="text-muted mb-4">
+                    Consulta el listado completo de visitantes registrados
+                </p>
+                <a href="/views" class="btn btn-outline-primary">
+                    Ver Listado
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Últimas visitas -->
+{% if ultimas_visitas and ultimas_visitas|length > 0 %}
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="mb-0">Últimas Visitas</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Visitante</th>
+                        <th>Teléfono</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visita in ultimas_visitas|slice(0, 5) %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar me-3">
+                                    {{ visita.nombre|first|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-medium">{{ visita.nombre }} {{ visita.apellido }}</div>
+                                    <small class="text-muted">{{ visita.correo }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ visita.telefono }}</td>
+                        <td>
+                            <small class="text-muted">
+                                {{ visita.fecha_registro|date('d/m/Y H:i') }}
+                            </small>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+

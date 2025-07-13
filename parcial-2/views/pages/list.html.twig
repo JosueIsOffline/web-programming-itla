@@ -1,0 +1,190 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Listado de Visitas - Sistema de Visitas{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">Listado de Visitas</h2>
+        <p class="text-muted mb-0">Gestiona todas las visitas registradas</p>
+    </div>
+    <a href="registro.php" class="btn btn-primary">
+        <i class="bi bi-person-plus me-2"></i>
+        Nueva Visita
+    </a>
+</div>
+
+<!-- Filtros -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-8">
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    id="buscarVisita" 
+                    placeholder="Buscar por nombre, apellido, teléfono o correo..."
+                    onkeyup="filtrarTabla()"
+                >
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex gap-2">
+                    <button class="btn btn-light" onclick="limpiarFiltros()">
+                        <i class="bi bi-arrow-clockwise me-1"></i>
+                        Limpiar
+                    </button>
+                    <button class="btn btn-outline-primary" onclick="exportarDatos()">
+                        <i class="bi bi-download me-1"></i>
+                        Exportar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla -->
+{% if visitas and visitas|length > 0 %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Visitas Registradas ({{ visitas|length }})</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table mb-0" id="tablaVisitas">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Visitante</th>
+                        <th>Teléfono</th>
+                        <th>Correo</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visita in visitas %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar me-3">
+                                    {{ visita.nombre|first|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-medium">{{ visita.nombre }} {{ visita.apellido }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="tel:{{ visita.telefono }}" class="text-decoration-none">
+                                {{ visita.telefono }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="mailto:{{ visita.email }}" class="text-decoration-none">
+                                {{ visita.email }}
+                            </a>
+                        </td>
+                        <td>
+                            <small class="text-muted">
+                                {{ visita.fecha_registro|date('d/m/Y H:i') }}
+                            </small>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="verDetalle({{ visita.id|default(loop.index) }})">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-warning" onclick="editarVisita({{ visita.id|default(loop.index) }})">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="eliminarVisita({{ visita.id|default(loop.index) }}, '{{ visita.nombre }} {{ visita.apellido }}')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-light">
+        <small class="text-muted">
+            Mostrando {{ visitas|length }} registros - Actualizado: {{ "now"|date("d/m/Y H:i") }}
+        </small>
+    </div>
+</div>
+
+{% else %}
+<!-- Estado vacío -->
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-inbox display-4 text-muted mb-3"></i>
+        <h4 class="text-muted">No hay visitas registradas</h4>
+        <p class="text-muted mb-4">Comience registrando la primera visita</p>
+        <a href="registro.php" class="btn btn-primary">
+            <i class="bi bi-person-plus me-2"></i>
+            Registrar Primera Visita
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<script>
+// Autor: [Tu Nombre Completo] - Funciones del listado
+
+function filtrarTabla() {
+    const input = document.getElementById('buscarVisita');
+    const filtro = input.value.toLowerCase();
+    const tabla = document.getElementById('tablaVisitas');
+    
+    if (!tabla) return;
+    
+    const filas = tabla.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    
+    for (let i = 0; i < filas.length; i++) {
+        const fila = filas[i];
+        const textoFila = fila.textContent.toLowerCase();
+        
+        if (textoFila.includes(filtro)) {
+            fila.style.display = '';
+        } else {
+            fila.style.display = 'none';
+        }
+    }
+}
+
+function limpiarFiltros() {
+    document.getElementById('buscarVisita').value = '';
+    filtrarTabla();
+}
+
+function verDetalle(id) {
+    alert('Ver detalle de visita ID: ' + id);
+}
+
+function editarVisita(id) {
+    if (confirmarAccion('¿Desea editar esta visita?')) {
+      location.href = `/edit-view/${id}`
+    }
+}
+
+function eliminarVisita(id, nombre) {
+    if (confirmarAccion('¿Está seguro de eliminar la visita de ' + nombre + '?')) {
+      fetch(`/delete-view/${id}`, { 
+        method: "POST"
+      }).then(() => {
+        alert(`${nombre} eliminado correctamente`)
+      }) 
+    }
+}
+
+function exportarDatos() {
+    alert('Exportando datos...');
+}
+</script>
+{% endblock %}
+
