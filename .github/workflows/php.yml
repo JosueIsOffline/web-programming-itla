@@ -34,11 +34,19 @@ jobs:
           ${{ runner.os }}-php-
           
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress --no-dev
+      run: composer install --prefer-dist --no-progress
       working-directory: homework-8
       
     - name: Create reports directory
       run: mkdir -p homework-8/reports
+      
+    - name: Install PHPUnit if not present
+      run: |
+        if [ ! -f vendor/bin/phpunit ]; then
+          echo "PHPUnit not found, installing..."
+          composer require --dev phpunit/phpunit ^12.0
+        fi
+      working-directory: homework-8
       
     - name: Run PHPUnit tests with JUnit report
       run: |
