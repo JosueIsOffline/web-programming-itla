@@ -19,6 +19,7 @@ jobs:
       with:
         php-version: '8.3'
         extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, dom, filter, gd, iconv, json, mbstring
+        coverage: xdebug
         
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
@@ -53,10 +54,17 @@ jobs:
         vendor/bin/phpunit \
           --log-junit reports/junit.xml \
           --coverage-text \
+          --coverage-html reports/coverage \
           --testdox \
           ./tests
       working-directory: homework-8
-      continue-on-error: true
+      
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: coverage-report
+        path: homework-8/reports/coverage
       
     - name: Publish test results to GitHub
       uses: mikepenz/action-junit-report@v4
