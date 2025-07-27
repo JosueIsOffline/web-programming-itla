@@ -58,26 +58,7 @@ jobs:
       working-directory: homework-8
       continue-on-error: true
       
-    - name: List generated files
-      run: |
-        echo "Contents of homework-8 directory:"
-        ls -la homework-8/
-        echo "Contents of reports directory:"
-        ls -la homework-8/reports/ || echo "Reports directory not found"
-        echo "JUnit XML content:"
-        cat homework-8/reports/junit.xml || echo "JUnit file not found"
-        
     - name: Publish test results to GitHub
-      uses: dorny/test-reporter@v1
-      if: always()
-      with:
-        name: PHPUnit Tests
-        path: homework-8/reports/junit.xml
-        reporter: java-junit
-        fail-on-error: true
-        
-    # Alternativa con diferentes reporters
-    - name: Publish test results (alternative)
       uses: mikepenz/action-junit-report@v4
       if: always()
       with:
