@@ -15,7 +15,7 @@
     }
   ],
   "scripts": {
-    "test": "./vendor/bin/phpunit"
+    "test": "./vendor/bin/phpunit --log-junit junit.xml"
   },
   "require": {
     "arkham-dev/framework": "^1.2.0"
