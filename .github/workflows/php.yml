@@ -22,7 +22,6 @@ jobs:
       with:
         php-version: '8.3'
         extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, dom, filter, gd, iconv, json, mbstring
-        coverage: xdebug
         tools: composer:v2
         
     - name: ✅ Validate Composer Configuration
@@ -66,21 +65,11 @@ jobs:
         echo "🧪 Running PHPUnit tests..."
         vendor/bin/phpunit \
           --log-junit reports/junit.xml \
-          --coverage-text \
-          --coverage-html reports/coverage \
           --testdox \
           --colors=always \
           ./tests
       working-directory: homework-8
       
-    - name: 📊 Upload Coverage Reports
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: coverage-report-${{ github.run_number }}
-        path: homework-8/reports/coverage
-        retention-days: 30
-        
     - name: 📋 Publish Test Results
       uses: mikepenz/action-junit-report@v4
       if: always()
@@ -96,8 +85,8 @@ jobs:
           **Environment**: Ubuntu Latest  
           
           ### 📈 Quality Metrics
-          - ✅ Code coverage report generated
-          - ✅ All tests executed with strict validation  
+          - ✅ All tests executed successfully
+          - ✅ Strict validation enabled  
           - ✅ Composer dependencies validated
           
           ### 🎯 Test Categories
@@ -144,11 +133,11 @@ jobs:
             | **PHPUnit Version** | 12.x |
             
             ### 📁 Available Artifacts
-            - 📊 Coverage Report (HTML)
+            - 📊 Test Results (XML)
             
             ### 🔗 Quick Links  
             - [View Test Run](../actions/runs/${{ github.run_id }})
-            - [Download Coverage](../actions/runs/${{ github.run_id }})
+            - [Download Test Results](../actions/runs/${{ github.run_id }})
             
             ---
             *Generated automatically by GitHub Actions* 🤖`;
