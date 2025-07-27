@@ -37,10 +37,7 @@ jobs:
       working-directory: homework-8
 
     - name: Run PHPUnit tests
-      run: |
-        echo "::group::Running PHPUnit"
-        composer run-script test
-        echo "::endgroup::"
+      run: composer run-script test
       working-directory: homework-8
 
     - name: Publish test results to GitHub
