@@ -37,10 +37,7 @@ jobs:
       working-directory: homework-8
 
     - name: Run PHPUnit tests
-      run: |
-        vendor/bin/phpunit --log-junit junit.xml || cat junit.xml
-        ls -l
-        cat junit.xml
+      run: vendor/bin/phpunit --log-junit junit.xml ./tests
       working-directory: homework-8
 
     - name: Publish test results to GitHub
