@@ -1,5 +1,7 @@
 {
   "name": "josueisoffline/homework-8",
+  "description": "Proyecto de pruebas unitarias para homework 8",
+  "license": "proprietary",
   "type": "arkham-dev",
   "autoload": {
     "psr-4": {
