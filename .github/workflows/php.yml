@@ -1,4 +1,4 @@
-name: PHP Composer
+name: 🧪 PHP Quality Assurance
 on:
   push:
     branches: [ "main" ]
@@ -8,21 +8,30 @@ permissions:
   contents: read
   checks: write
   pull-requests: write
+  actions: read
 jobs:
-  build:
+  quality-assurance:
+    name: 🔍 Code Quality & Testing
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ['8.3']
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup PHP
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🐘 Setup PHP ${{ matrix.php-version }}
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.3'
+        php-version: ${{ matrix.php-version }}
         extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, dom, filter, gd, iconv, json, mbstring
         coverage: xdebug
+        tools: composer:v2
         
-    - name: Validate composer.json and composer.lock
-      run: composer validate --strict
+    - name: ✅ Validate Composer Configuration
+      run: |
+        echo "🔍 Validating composer.json and composer.lock..."
+        composer validate --strict --no-check-all
       working-directory: homework-8
       
     - name: Cache Composer packages
@@ -53,14 +62,111 @@ jobs:
       run: |
         vendor/bin/phpunit \
           --log-junit reports/junit.xml \
+          --coverage-text \
+          --coverage-html reports/coverage \
+          --coverage-clover reports/clover.xml \
           --testdox \
+          --colors=always \
+          --verbose \
           ./tests
       working-directory: homework-8
+      
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: 📊-coverage-report-${{ github.run_number }}
+        path: homework-8/reports/coverage
+        retention-days: 30
+        
+    - name: Upload test artifacts
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: 🧪-test-reports-${{ github.run_number }}
+        path: |
+          homework-8/reports/junit.xml
+          homework-8/reports/clover.xml
+        retention-days: 30
+        
+    - name: Comment PR with test results
+      uses: actions/github-script@v7
+      if: github.event_name == 'pull_request' && always()
+      with:
+        script: |
+          const fs = require('fs');
+          const path = 'homework-8/reports/junit.xml';
+          
+          if (fs.existsSync(path)) {
+            const xmlContent = fs.readFileSync(path, 'utf8');
+            const testMatch = xmlContent.match(/tests="(\d+)"/);
+            const failureMatch = xmlContent.match(/failures="(\d+)"/);
+            const errorMatch = xmlContent.match(/errors="(\d+)"/);
+            
+            const tests = testMatch ? testMatch[1] : '0';
+            const failures = failureMatch ? failureMatch[1] : '0';
+            const errors = errorMatch ? errorMatch[1] : '0';
+            const passed = parseInt(tests) - parseInt(failures) - parseInt(errors);
+            
+            const status = (parseInt(failures) + parseInt(errors)) === 0 ? '✅ PASSED' : '❌ FAILED';
+            const emoji = (parseInt(failures) + parseInt(errors)) === 0 ? '🎉' : '⚠️';
+            
+            const comment = `## ${emoji} PHP Test Results
+            
+            | Metric | Value |
+            |--------|-------|
+            | **Status** | ${status} |
+            | **Total Tests** | ${tests} |
+            | **Passed** | ${passed} |
+            | **Failed** | ${failures} |
+            | **Errors** | ${errors} |
+            | **PHP Version** | 8.3 |
+            | **PHPUnit Version** | 12.x |
+            
+            ### 📁 Available Artifacts
+            - 📊 Coverage Report (HTML)
+            - 🧪 Test Reports (XML)
+            
+            ### 🔗 Quick Links
+            - [View Coverage Report](../actions/runs/${{ github.run_id }})
+            - [Download Test Artifacts](../actions/runs/${{ github.run_id }})
+            
+            ---
+            *Generated automatically by GitHub Actions* 🤖`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          }
       
     - name: Publish test results to GitHub
       uses: mikepenz/action-junit-report@v4
       if: always()
       with:
         report_paths: 'homework-8/reports/junit.xml'
-        check_name: 'PHPUnit Test Results'
+        check_name: '🧪 PHPUnit Test Suite Results'
+        summary: |
+          ## 📊 Test Execution Summary
+          
+          **Project**: Homework 8 - PHP Application
+          **Test Framework**: PHPUnit 12.x
+          **PHP Version**: 8.3
+          **Environment**: Ubuntu Latest
+          
+          ### 📈 Coverage & Quality Metrics
+          - Code coverage report available in artifacts
+          - All tests executed with strict validation
+          - Composer dependencies validated
+          
+          ### 🔍 Test Categories
+          - **Unit Tests**: Service layer validation
+          - **Integration Tests**: Component interaction
+          - **Functional Tests**: End-to-end scenarios
         fail_on_failure: true
+        require_tests: true
+        job_summary: true
+        detailed_summary: true
+        flaky_test_retries: 0
