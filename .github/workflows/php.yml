@@ -1,59 +1,78 @@
 name: PHP Composer
-
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
 permissions:
   contents: read
   checks: write
   pull-requests: write
-
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
-
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, dom, filter, gd, iconv, json, mbstring
+        
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
       working-directory: homework-8
-
+      
     - name: Cache Composer packages
       id: composer-cache
       uses: actions/cache@v3
       with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        path: homework-8/vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('homework-8/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-php-
-
+          
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+      run: composer install --prefer-dist --no-progress --no-dev
       working-directory: homework-8
-
+      
+    - name: Create reports directory
+      run: mkdir -p homework-8/reports
+      
     - name: Run PHPUnit tests with JUnit report
       run: |
-        vendor/bin/phpunit --log-junit junit.xml ./tests
-        ls -l
-        cat junit.xml
+        vendor/bin/phpunit \
+          --log-junit reports/junit.xml \
+          --coverage-text \
+          --testdox \
+          ./tests
       working-directory: homework-8
-
+      continue-on-error: true
+      
+    - name: List generated files
+      run: |
+        echo "Contents of homework-8 directory:"
+        ls -la homework-8/
+        echo "Contents of reports directory:"
+        ls -la homework-8/reports/ || echo "Reports directory not found"
+        echo "JUnit XML content:"
+        cat homework-8/reports/junit.xml || echo "JUnit file not found"
+        
     - name: Publish test results to GitHub
       uses: dorny/test-reporter@v1
       if: always()
       with:
         name: PHPUnit Tests
-        path: homework-8/junit.xml
+        path: homework-8/reports/junit.xml
         reporter: java-junit
-
-
-    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
-    # Docs: https://getcomposer.org/doc/articles/scripts.md
-
-    # - name: Run test suite
-    #   run: composer run-script test
+        fail-on-error: true
+        
+    # Alternativa con diferentes reporters
+    - name: Publish test results (alternative)
+      uses: mikepenz/action-junit-report@v4
+      if: always()
+      with:
+        report_paths: 'homework-8/reports/junit.xml'
+        check_name: 'PHPUnit Test Results'
+        fail_on_failure: true
