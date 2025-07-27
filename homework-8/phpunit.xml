@@ -7,6 +7,9 @@
     <testsuite name="MyFramework Test Suite">
       <directory>./tests</directory>
     </testsuite>
+    <testsuite name="MyFramework Test Suite" tests="1" failures="0" errors="0" skipped="0">
+      <testcase name="Generate number invoice" classname="Tests\InvoiceServiceTest" time="0.001"/>
+    </testsuite>
   </testsuites>
 </phpunit>
 
