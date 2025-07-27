@@ -14,7 +14,7 @@ class InvoiceServiceTest extends TestCase
 
     $number = $service->generateNumberInvoice($data);
 
-    $this->expectOutputString("REC-013");
+    $this->expectOutputString("REC-014");
 
     print($number);
   }
