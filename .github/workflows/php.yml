@@ -13,17 +13,14 @@ jobs:
   quality-assurance:
     name: 🔍 Code Quality & Testing
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        php-version: ['8.3']
     steps:
     - name: 📥 Checkout Repository
       uses: actions/checkout@v4
-      
-    - name: 🐘 Setup PHP ${{ matrix.php-version }}
+    
+    - name: 🐘 Setup PHP 8.3
       uses: shivammathur/setup-php@v2
       with:
-        php-version: ${{ matrix.php-version }}
+        php-version: '8.3'
         extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, dom, filter, gd, iconv, json, mbstring
         coverage: xdebug
         tools: composer:v2
@@ -31,65 +28,88 @@ jobs:
     - name: ✅ Validate Composer Configuration
       run: |
         echo "🔍 Validating composer.json and composer.lock..."
-        composer validate --strict --no-check-all
+        composer validate --strict
       working-directory: homework-8
       
-    - name: Cache Composer packages
+    - name: 🗂️ Cache Composer Dependencies
       id: composer-cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: homework-8/vendor
         key: ${{ runner.os }}-php-${{ hashFiles('homework-8/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-php-
           
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+    - name: 📦 Install Dependencies
+      run: |
+        echo "📦 Installing Composer dependencies..."
+        composer install --prefer-dist --no-progress
       working-directory: homework-8
       
-    - name: Create reports directory
-      run: mkdir -p homework-8/reports
+    - name: 📁 Create Reports Directory
+      run: |
+        echo "📁 Setting up reports directory..."
+        mkdir -p homework-8/reports
       
-    - name: Install PHPUnit if not present
+    - name: 🔧 Verify PHPUnit Installation
       run: |
         if [ ! -f vendor/bin/phpunit ]; then
-          echo "PHPUnit not found, installing..."
+          echo "⚠️ PHPUnit not found, installing..."
           composer require --dev phpunit/phpunit ^12.0
+        else
+          echo "✅ PHPUnit found and ready"
         fi
       working-directory: homework-8
       
-    - name: Run PHPUnit tests with JUnit report
+    - name: 🧪 Execute PHPUnit Test Suite
       run: |
+        echo "🧪 Running PHPUnit tests..."
         vendor/bin/phpunit \
           --log-junit reports/junit.xml \
           --coverage-text \
           --coverage-html reports/coverage \
-          --coverage-clover reports/clover.xml \
           --testdox \
           --colors=always \
-          --verbose \
           ./tests
       working-directory: homework-8
       
-    - name: Upload coverage reports
-      uses: actions/upload-artifact@v3
+    - name: 📊 Upload Coverage Reports
+      uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: 📊-coverage-report-${{ github.run_number }}
+        name: coverage-report-${{ github.run_number }}
         path: homework-8/reports/coverage
         retention-days: 30
         
-    - name: Upload test artifacts
-      uses: actions/upload-artifact@v3
+    - name: 📋 Publish Test Results
+      uses: mikepenz/action-junit-report@v4
       if: always()
       with:
-        name: 🧪-test-reports-${{ github.run_number }}
-        path: |
-          homework-8/reports/junit.xml
-          homework-8/reports/clover.xml
-        retention-days: 30
+        report_paths: 'homework-8/reports/junit.xml'
+        check_name: '🧪 PHPUnit Test Suite Results'
+        summary: |
+          ## 📊 Test Execution Summary
+          
+          **Project**: Homework 8 - PHP Application  
+          **Test Framework**: PHPUnit 12.x  
+          **PHP Version**: 8.3  
+          **Environment**: Ubuntu Latest  
+          
+          ### 📈 Quality Metrics
+          - ✅ Code coverage report generated
+          - ✅ All tests executed with strict validation  
+          - ✅ Composer dependencies validated
+          
+          ### 🎯 Test Categories
+          - **Unit Tests**: Service layer validation
+          - **Integration Tests**: Component interaction  
+          - **Functional Tests**: End-to-end scenarios
+        fail_on_failure: true
+        require_tests: true
+        job_summary: true
+        detailed_summary: true
         
-    - name: Comment PR with test results
+    - name: 💬 Comment PR Results
       uses: actions/github-script@v7
       if: github.event_name == 'pull_request' && always()
       with:
@@ -125,11 +145,10 @@ jobs:
             
             ### 📁 Available Artifacts
             - 📊 Coverage Report (HTML)
-            - 🧪 Test Reports (XML)
             
-            ### 🔗 Quick Links
-            - [View Coverage Report](../actions/runs/${{ github.run_id }})
-            - [Download Test Artifacts](../actions/runs/${{ github.run_id }})
+            ### 🔗 Quick Links  
+            - [View Test Run](../actions/runs/${{ github.run_id }})
+            - [Download Coverage](../actions/runs/${{ github.run_id }})
             
             ---
             *Generated automatically by GitHub Actions* 🤖`;
@@ -141,32 +160,3 @@ jobs:
               body: comment
             });
           }
-      
-    - name: Publish test results to GitHub
-      uses: mikepenz/action-junit-report@v4
-      if: always()
-      with:
-        report_paths: 'homework-8/reports/junit.xml'
-        check_name: '🧪 PHPUnit Test Suite Results'
-        summary: |
-          ## 📊 Test Execution Summary
-          
-          **Project**: Homework 8 - PHP Application
-          **Test Framework**: PHPUnit 12.x
-          **PHP Version**: 8.3
-          **Environment**: Ubuntu Latest
-          
-          ### 📈 Coverage & Quality Metrics
-          - Code coverage report available in artifacts
-          - All tests executed with strict validation
-          - Composer dependencies validated
-          
-          ### 🔍 Test Categories
-          - **Unit Tests**: Service layer validation
-          - **Integration Tests**: Component interaction
-          - **Functional Tests**: End-to-end scenarios
-        fail_on_failure: true
-        require_tests: true
-        job_summary: true
-        detailed_summary: true
-        flaky_test_retries: 0
