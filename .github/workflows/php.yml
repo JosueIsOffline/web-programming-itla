@@ -31,9 +31,11 @@ jobs:
 
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
+      working-directory: homework-8
 
     - name: Run PHPUnit tests
       run: composer run-script test
+      working-directory: homework-8
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
