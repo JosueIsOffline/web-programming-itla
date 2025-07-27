@@ -36,8 +36,11 @@ jobs:
       run: composer install --prefer-dist --no-progress
       working-directory: homework-8
 
-    - name: Run PHPUnit tests
-      run: vendor/bin/phpunit --log-junit junit.xml ./tests
+    - name: Run PHPUnit tests with JUnit report
+      run: |
+        vendor/bin/phpunit --log-junit junit.xml ./tests
+        ls -l
+        cat junit.xml
       working-directory: homework-8
 
     - name: Publish test results to GitHub
