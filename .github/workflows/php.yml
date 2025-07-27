@@ -41,6 +41,14 @@ jobs:
         echo "::endgroup::"
       working-directory: homework-8
 
+    - name: Publish test results to GitHub
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+        name: PHPUnit Tests
+        path: homework-8/junit.xml
+        reporter: java-junit
+
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
