@@ -1,0 +1,331 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nueva Factura - La Rubia{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-plus-circle"></i> Nueva Factura</h1>
+            <a href="" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+</div>
+
+<form id="facturaForm" method="POST" action="/invoice">
+    <div class="row">
+        <!-- Información del cliente -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-person"></i> Información del Cliente</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="codigo_cliente" class="form-label">Código/Matrícula del Cliente</label>
+                        <div class="input-group">
+                            <input type="hidden" name="id" id="cliente_id"/> 
+                            <input type="text" class="form-control" id="codigo_cliente" name="codigo_cliente" 
+                                   placeholder="Ej: CLI-001, MAT-001" required>
+                            <button type="button" class="btn btn-outline-secondary" id="buscar_cliente">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="nombre_cliente" class="form-label">Nombre del Cliente</label>
+                        <input type="text" class="form-control" id="nombre_cliente" name="nombre_cliente" 
+                               placeholder="Nombre completo del cliente" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="telefono_cliente" class="form-label">Teléfono (Opcional)</label>
+                        <input type="text" class="form-control" id="telefono_cliente" name="telefono_cliente" 
+                               placeholder="809-555-0000">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Información de la factura -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-receipt"></i> Información de la Factura</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="numero_recibo" class="form-label">Número de Recibo</label>
+                        <input type="text" class="form-control" id="numero_recibo" name="numero_recibo" 
+                               value="{{ siguiente_numero }}" readonly>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="fecha" class="form-label">Fecha</label>
+                        <input type="date" class="form-control" id="fecha" name="fecha" 
+                               value="{{ "now"|date("Y-m-d") }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="comentario" class="form-label">Comentario (Opcional)</label>
+                        <textarea class="form-control" id="comentario" name="comentario" rows="3" 
+                                  placeholder="Ej: Pagó en efectivo, Transferencia bancaria..."></textarea>
+                        <!-- <input type="hidden" name="subtotal" id="subtotal"/> -->
+                        <input type="hidden" name="totalGeneral" id="totalGeneral" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Artículos -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-box"></i> Artículos</h5>
+                    <button type="button" class="btn btn-success btn-sm" id="agregar_articulo">
+                        <i class="bi bi-plus"></i> Agregar Artículo
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="tabla_articulos">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="30%">Artículo</th>
+                                    <th width="15%">Cantidad</th>
+                                    <th width="20%">Precio Unitario</th>
+                                    <th width="20%">Total</th>
+                                    <th width="15%">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="articulos_body">
+                                <!-- Los artículos se agregarán dinámicamente aquí -->
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-warning">
+                                    <td colspan="3" class="text-end"><strong>TOTAL A PAGAR:</strong></td>
+                                    <td><strong>RD$<span id="total_general">0.00</span></strong></td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Botones de acción -->
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <button type="submit" class="btn btn-primary btn-lg me-3">
+                <i class="bi bi-save"></i> Guardar Factura
+            </button>
+            <button type="button" class="btn btn-success btn-lg" id="guardar_e_imprimir">
+                <i class="bi bi-printer"></i> Guardar e Imprimir
+            </button>
+        </div>
+    </div>
+</form>
+
+<!-- Modal para seleccionar artículo -->
+<div class="modal fade" id="modalArticulo" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Seleccionar Artículo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="buscar_articulo" class="form-label">Buscar Artículo</label>
+                    <input type="text" class="form-control" id="buscar_articulo" placeholder="Escriba para buscar...">
+                </div>
+                <div class="list-group" id="lista_articulos">
+                    {% for articulo in articulos %}
+                    <a href="#" class="list-group-item list-group-item-action articulo-item" 
+                       data-id="{{ articulo.id }}" 
+                       data-nombre="{{ articulo.nombre }}" 
+                       data-precio="{{ articulo.precio_unitario }}">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ articulo.nombre }}</h6>
+                            <small>RD${{ articulo.precio_unitario|number_format(2, '.', ',') }}</small>
+                        </div>
+                        <small class="text-muted">Stock: {{ articulo.stock }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+let contadorArticulos = 0;
+let totalGeneral = 0;
+
+const searchClient = async (codigo) => {
+
+   const res = await fetch(`http://localhost:8000/api/clients/${codigo}`) 
+   const {data} = await res.json()
+
+    return data
+}
+
+
+// Buscar cliente por código
+document.getElementById('buscar_cliente').addEventListener('click', async function() {
+    const codigo = document.getElementById('codigo_cliente').value;
+    if (codigo) {
+        // Aquí harías una petición AJAX para buscar el cliente
+        // Por ahora simulamos algunos clientes
+        const cliente = await searchClient(codigo) 
+        console.log(cliente)
+        if (cliente) {
+            document.getElementById('cliente_id').value = cliente.id
+            document.getElementById('nombre_cliente').value = cliente.nombre;
+            document.getElementById('telefono_cliente').value = cliente.telefono;
+        } else {
+            alert('Cliente no encontrado. Puede crear uno nuevo.');
+        }
+    }
+});
+
+// Autocompletar cliente al escribir código
+// document.getElementById('codigo_cliente').addEventListener('input', async function() {
+//     const codigo = this.value 
+//     const cliente = await searchClient(codigo);
+//    
+//
+//     if (cliente) {
+//         document.getElementById('nombre_cliente').value = cliente.nombre;
+//         document.getElementById('telefono_cliente').value = cliente.telefono;
+//     }
+// });
+
+// Agregar artículo
+document.getElementById('agregar_articulo').addEventListener('click', function() {
+    const modal = new bootstrap.Modal(document.getElementById('modalArticulo'));
+    modal.show();
+});
+
+// Seleccionar artículo del modal
+document.querySelectorAll('.articulo-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const id = this.dataset.id;
+        const nombre = this.dataset.nombre;
+        const precio = parseFloat(this.dataset.precio);
+        
+        
+        agregarArticuloATabla(id, nombre, precio);
+        
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalArticulo'));
+        modal.hide();
+    });
+});
+
+// Buscar artículos en el modal
+document.getElementById('buscar_articulo').addEventListener('input', function() {
+    const filtro = this.value.toLowerCase();
+    document.querySelectorAll('.articulo-item').forEach(item => {
+        const nombre = item.dataset.nombre.toLowerCase();
+        if (nombre.includes(filtro)) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+});
+
+function agregarArticuloATabla(id, nombre, precio) {
+    contadorArticulos++;
+    
+    const tbody = document.getElementById('articulos_body');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>
+            ${nombre}
+            <input type="hidden" name="articulos[${contadorArticulos}][id]" value="${id}">
+            <input type="hidden" name="articulos[${contadorArticulos}][nombre]" value="${nombre}">
+        </td>
+        <td>
+            <input type="number" class="form-control cantidad" name="articulos[${contadorArticulos}][cantidad]" 
+                   value="1" min="1" onchange="calcularTotal(this)">
+        </td>
+        <td>
+            <div class="input-group">
+                <span class="input-group-text">RD$</span>
+                <input type="number" class="form-control precio" name="articulos[${contadorArticulos}][precio]" 
+                       value="${precio}" step="0.01" min="0" onchange="calcularTotal(this)" onload="calcularTotal(this)">
+            </div>
+        </td>
+        <td>
+            <strong>RD$<span class="total-articulo">${precio.toFixed(2)}</span></strong>
+            <input type="hidden" name="articulos[${contadorArticulos}][total]" value="${precio}">
+        </td>
+        <td>
+            <button type="button" class="btn btn-danger btn-sm" onclick="eliminarArticulo(this)">
+                <i class="bi bi-trash"></i>
+            </button>
+        </td>
+    `;
+     
+    tbody.appendChild(row);
+    calcularTotalGeneral();
+}
+
+function calcularTotal(input) {
+    const row = input.closest('tr');
+    const cantidad = parseFloat(row.querySelector('.cantidad').value) || 0;
+    const precio = parseFloat(row.querySelector('.precio').value) || 0;
+
+    console.log(precio)
+    const total = cantidad * precio;
+
+    // document.getElementById('subtotal').value = precio
+    // document.getElementById('total').value = total
+    
+    row.querySelector('.total-articulo').textContent = total.toFixed(2);
+    row.querySelector('input[name*="[total]"]').value = total;
+    
+    calcularTotalGeneral();
+}
+
+function eliminarArticulo(button) {
+    button.closest('tr').remove();
+    calcularTotalGeneral();
+}
+
+function calcularTotalGeneral() {
+    let total = 0;
+    document.querySelectorAll('.total-articulo').forEach(span => {
+        total += parseFloat(span.textContent) || 0;
+    });
+    
+    document.getElementById('total_general').textContent = total.toFixed(2);
+    totalGeneral = total;
+
+    document.getElementById("totalGeneral").value = totalGeneral
+}
+
+// Guardar e imprimir
+document.getElementById('guardar_e_imprimir').addEventListener('click', function() {
+    const form = document.getElementById('facturaForm');
+    const formData = new FormData(form);
+    formData.append('imprimir', '1');
+    
+    // Aquí enviarías el formulario y luego abrirías la ventana de impresión
+    form.submit();
+});
+</script>
+{% endblock %}
+

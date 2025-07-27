@@ -1,0 +1,177 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard - La Rubia{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-speedometer2"></i> Dashboard</h1>
+            <div class="text-muted">
+                <i class="bi bi-clock"></i> {{ "now"|date("l, d \\d\\e F \\d\\e Y") }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estadísticas del día -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ facturas_hoy }}</h4>
+                        <p class="mb-0">Facturas Hoy</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-receipt fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>RD${{ ingresos_hoy|number_format(2, '.', ',') }}</h4>
+                        <p class="mb-0">Ingresos Hoy</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-currency-dollar fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ total_clientes }}</h4>
+                        <p class="mb-0">Total Clientes</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-people fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ total_articulos }}</h4>
+                        <p class="mb-0">Artículos</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-box fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones rápidas -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-lightning"></i> Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <a href="/new-invoice" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-plus-circle"></i><br>
+                            Nueva Factura
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <a href="" class="btn btn-success btn-lg w-100">
+                            <i class="bi bi-person-plus"></i><br>
+                            Nuevo Cliente
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <a href="" class="btn btn-warning btn-lg w-100">
+                            <i class="bi bi-box-seam"></i><br>
+                            Nuevo Artículo
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <a href="" class="btn btn-info btn-lg w-100">
+                            <i class="bi bi-graph-up"></i><br>
+                            Reporte Diario
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Últimas facturas -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-clock-history"></i> Últimas Facturas</h5>
+            </div>
+            <div class="card-body">
+                {% if ultimas_facturas is empty %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-receipt fs-1"></i>
+                        <p class="mt-2">No hay facturas registradas</p>
+                        <a href="" class="btn btn-primary">
+                            Crear Primera Factura
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Recibo</th>
+                                    <th>Cliente</th>
+                                    <th>Fecha</th>
+                                    <th>Total</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for factura in ultimas_facturas %}
+                                <tr>
+                                    <td><strong>{{ factura.numero_recibo }}</strong></td>
+                                    <td>{{ factura.cliente.nombre }}</td>
+                                    <td>{{ factura.fecha|date('d/m/Y') }}</td>
+                                    <td><strong>RD${{ factura.total|number_format(2, '.', ',') }}</strong></td>
+                                    <td>
+                                        <a href="" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="" class="btn btn-sm btn-outline-success" target="_blank">
+                                            <i class="bi bi-printer"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
