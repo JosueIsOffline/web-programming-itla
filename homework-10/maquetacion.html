@@ -1,0 +1,2506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Incidencias RD</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1e40af;
+            --secondary-color: #f59e0b;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #06b6d4;
+            --dark-color: #1f2937;
+            --light-color: #f8fafc;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-color);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .sidebar {
+            min-height: calc(100vh - 76px);
+            background: linear-gradient(135deg, var(--primary-color), #1e3a8a);
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .sidebar.collapsed {
+            margin-left: -250px;
+        }
+
+        .sidebar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 5px 10px;
+            transition: all 0.3s;
+        }
+
+        .sidebar-nav .nav-link:hover,
+        .sidebar-nav .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .main-content {
+            transition: all 0.3s;
+            margin-left: 0;
+        }
+
+        .main-content.shifted {
+            margin-left: 250px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .incident-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+
+        .incident-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .incident-type-badge {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 20px;
+        }
+
+        .map-container {
+            height: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #1e3a8a);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
+        }
+
+        .incident-modal .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+
+        .incident-modal .modal-header {
+            background: linear-gradient(135deg, var(--primary-color), #1e3a8a);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .timeline-item {
+            border-left: 3px solid var(--primary-color);
+            padding-left: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -7px;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary-color);
+        }
+
+        .login-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-color), #1e3a8a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .social-btn {
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .social-btn:hover {
+            border-color: var(--primary-color);
+            background-color: #f8fafc;
+        }
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        .admin-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+
+        .status-pending { color: var(--warning-color); }
+        .status-approved { color: var(--success-color); }
+        .status-rejected { color: var(--danger-color); }
+
+        .incident-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                z-index: 1050;
+                width: 250px;
+                margin-left: -250px;
+            }
+            
+            .sidebar.show {
+                margin-left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container-fluid">
+            <button class="btn btn-outline-light me-3" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Incidencias RD
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle position-relative" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-info-circle text-info me-2"></i>Nueva incidencia reportada</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-check-circle text-success me-2"></i>Reporte aprobado</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-edit text-warning me-2"></i>Corrección sugerida</a></li>
+                    </ul>
+                </div>
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle"></i> Usuario
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#" onclick="showSection('profile')"><i class="fas fa-user me-2"></i>Perfil</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="showSection('login')"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <nav class="navbar-nav sidebar-nav mt-3">
+            <a class="nav-link active" href="#" onclick="showSection('dashboard')">
+                <i class="fas fa-home me-2"></i> Dashboard
+            </a>
+            <a class="nav-link" href="#" onclick="showSection('map')">
+                <i class="fas fa-map-marked-alt me-2"></i> Mapa de Incidencias
+            </a>
+            <a class="nav-link" href="#" onclick="showSection('report')">
+                <i class="fas fa-plus-circle me-2"></i> Reportar Incidencia
+            </a>
+            <a class="nav-link" href="#" onclick="showSection('list')">
+                <i class="fas fa-list me-2"></i> Lista de Incidencias
+            </a>
+            <a class="nav-link" href="#" onclick="showSection('admin')">
+                <i class="fas fa-cog me-2"></i> Administración
+            </a>
+            <a class="nav-link" href="#" onclick="showSection('validator')">
+                <i class="fas fa-check-double me-2"></i> Validación
+            </a>
+            <a class="nav-link" href="#" onclick="showSection('statistics')">
+                <i class="fas fa-chart-bar me-2"></i> Estadísticas
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Login Section -->
+        <div class="page-section" id="login">
+            <div class="login-container">
+                <div class="login-card">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-exclamation-triangle text-primary" style="font-size: 3rem;"></i>
+                        <h2 class="mt-3">Incidencias RD</h2>
+                        <p class="text-muted">Inicia sesión para continuar</p>
+                    </div>
+                    
+                    <a href="#" class="social-btn" onclick="showSection('dashboard')">
+                        <i class="fab fa-google text-danger me-2"></i>
+                        Continuar con Google
+                    </a>
+                    
+                    <a href="#" class="social-btn" onclick="showSection('dashboard')">
+                        <i class="fab fa-microsoft text-primary me-2"></i>
+                        Continuar con Office 365
+                    </a>
+                    
+                    <div class="text-center my-3">
+                        <span class="text-muted">o</span>
+                    </div>
+                    
+                    <a href="#" class="social-btn" onclick="showSection('super-login')">
+                        <i class="fas fa-shield-alt text-warning me-2"></i>
+                        Acceso de Validador
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Super Login Section -->
+        <div class="page-section" id="super-login">
+            <div class="login-container">
+                <div class="login-card">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-shield-alt text-warning" style="font-size: 3rem;"></i>
+                        <h2 class="mt-3">Acceso de Validador</h2>
+                        <p class="text-muted">Panel de super usuario</p>
+                    </div>
+                    
+                    <form>
+                        <div class="mb-3">
+                            <label class="form-label">Usuario</label>
+                            <input type="text" class="form-control" placeholder="Ingrese su usuario">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" placeholder="Ingrese su contraseña">
+                        </div>
+                        <button type="button" class="btn btn-primary w-100" onclick="showSection('dashboard')">
+                            Iniciar Sesión
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <a href="#" onclick="showSection('login')" class="text-muted">
+                            <i class="fas fa-arrow-left me-1"></i> Volver al login principal
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div class="page-section active" id="dashboard">
+            <div class="container-fluid p-4">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h1 class="h3 mb-0">Dashboard</h1>
+                        <p class="text-muted">Resumen de incidencias en tiempo real</p>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">24</h3>
+                                    <p class="mb-0">Últimas 24h</p>
+                                </div>
+                                <i class="fas fa-clock fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">156</h3>
+                                    <p class="mb-0">Este mes</p>
+                                </div>
+                                <i class="fas fa-calendar fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">8</h3>
+                                    <p class="mb-0">Pendientes</p>
+                                </div>
+                                <i class="fas fa-hourglass-half fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">1,234</h3>
+                                    <p class="mb-0">Total</p>
+                                </div>
+                                <i class="fas fa-exclamation-triangle fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Incidents -->
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card incident-card">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">Incidencias Recientes</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="timeline-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">Accidente de tránsito en Av. Churchill</h6>
+                                            <p class="text-muted mb-1">Santo Domingo, Distrito Nacional</p>
+                                            <span class="incident-type-badge bg-danger text-white">Accidente</span>
+                                        </div>
+                                        <small class="text-muted">Hace 2 horas</small>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">Robo en supermercado</h6>
+                                            <p class="text-muted mb-1">Santiago, Santiago</p>
+                                            <span class="incident-type-badge bg-warning text-dark">Robo</span>
+                                        </div>
+                                        <small class="text-muted">Hace 4 horas</small>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">Inundación por lluvias</h6>
+                                            <p class="text-muted mb-1">San Pedro de Macorís</p>
+                                            <span class="incident-type-badge bg-info text-white">Desastre</span>
+                                        </div>
+                                        <small class="text-muted">Hace 6 horas</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card incident-card">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">Mapa Rápido</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div style="height: 300px; background: linear-gradient(45deg, #e3f2fd, #bbdefb); display: flex; align-items: center; justify-content: center;">
+                                    <div class="text-center">
+                                        <i class="fas fa-map-marked-alt fa-3x text-primary mb-3"></i>
+                                        <p class="text-muted">Vista previa del mapa</p>
+                                        <button class="btn btn-primary btn-sm" onclick="showSection('map')">Ver Mapa Completo</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="page-section" id="map">
+            <div class="container-fluid p-4">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h1 class="h3 mb-0">Mapa de Incidencias</h1>
+                        <p class="text-muted">Visualización de incidencias en tiempo real</p>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="filter-panel">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="form-label">Provincia</label>
+                            <select class="form-select">
+                                <option>Todas las provincias</option>
+                                <option>Distrito Nacional</option>
+                                <option>Santo Domingo</option>
+                                <option>Santiago</option>
+                                <option>La Vega</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Tipo de Incidencia</label>
+                            <select class="form-select">
+                                <option>Todos los tipos</option>
+                                <option>Accidente</option>
+                                <option>Robo</option>
+                                <option>Pelea</option>
+                                <option>Desastre</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Rango de Fecha</label>
+                            <div class="input-group">
+                                <input type="date" class="form-control">
+                                <span class="input-group-text">a</span>
+                                <input type="date" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button class="btn btn-primary w-100">
+                                <i class="fas fa-search me-1"></i> Filtrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map -->
+                <div class="map-container">
+                    <div style="height: 100%; background: linear-gradient(45deg, #e8f5e8, #c8e6c9); display: flex; align-items: center; justify-content: center; position: relative;">
+                        <!-- Simulate map markers -->
+                        <div style="position: absolute; top: 20%; left: 30%;">
+                            <i class="fas fa-map-marker-alt text-danger fa-2x" data-bs-toggle="modal" data-bs-target="#incidentModal" style="cursor: pointer;"></i>
+                        </div>
+                        <div style="position: absolute; top: 40%; left: 60%;">
+                            <i class="fas fa-map-marker-alt text-warning fa-2x" data-bs-toggle="modal" data-bs-target="#incidentModal" style="cursor: pointer;"></i>
+                        </div>
+                        <div style="position: absolute; top: 70%; left: 45%;">
+                            <i class="fas fa-map-marker-alt text-info fa-2x" data-bs-toggle="modal" data-bs-target="#incidentModal" style="cursor: pointer;"></i>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-map fa-4x text-success mb-3 opacity-50"></i>
+                            <p class="text-muted">Mapa Interactivo de República Dominicana</p>
+                            <small class="text-muted">Haz clic en los marcadores para ver detalles</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Section -->
+        <div class="page-section" id="report">
+            <div class="container-fluid p-4">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h1 class="h3 mb-0">Reportar Incidencia</h1>
+                        <p class="text-muted">Registra una nueva incidencia en el sistema</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card incident-card">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">Información de la Incidencia</h5>
+                            </div>
+                            <div class="card-body">
+                                <form>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Fecha de Ocurrencia</label>
+                                                <input type="datetime-local" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Título</label>
+                                                <input type="text" class="form-control" placeholder="Título descriptivo">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Tipo de Incidencia</label>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="accidente">
+                                                    <label class="form-check-label" for="accidente">Accidente</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="pelea">
+                                                    <label class="form-check-label" for="pelea">Pelea</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="robo">
+                                                    <label class="form-check-label" for="robo">Robo</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="desastre">
+                                                    <label class="form-check-label" for="desastre">Desastre</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Descripción</label>
+                                        <textarea class="form-control" rows="4" placeholder="Describe los detalles de la incidencia..."></textarea>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Provincia</label>
+                                                <select class="form-select">
+                                                    <option>Seleccionar provincia</option>
+                                                    <option>Distrito Nacional</option>
+                                                    <option>Santo Domingo</option>
+                                                    <option>Santiago</option>
+                                                    <option>La Vega</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Municipio</label>
+                                                <select class="form-select">
+                                                    <option>Seleccionar municipio</option>
+                                                    <option>Santo Domingo Este</option>
+                                                    <option>Santo Domingo Norte</option>
+                                                    <option>Santo Domingo Oeste</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Barrio</label>
+                                                <input type="text" class="form-control" placeholder="Nombre del barrio">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Latitud</label>
+                                                <input type="number" class="form-control" placeholder="18.4861" step="any">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Longitud</label>
+                                                <input type="number" class="form-control" placeholder="-69.9312" step="any">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Muertos</label>
+                                                <input type="number" class="form-control" placeholder="0" min="0">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Heridos</label>
+                                                <input type="number" class="form-control" placeholder="0" min="0">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Pérdida Estimada (RD$)</label>
+                                                <input type="number" class="form-control" placeholder="0" min="0">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Link a Redes Sociales</label>
+                                        <input type="url" class="form-control" placeholder="https://...">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Foto del Hecho</label>
+                                        <input type="file" class="form-control" accept="image/*">
+                                    </div>
+
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="fas fa-paper-plane me-2"></i>
+                                            Enviar Reporte
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card incident-card">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">Seleccionar Ubicación</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div style="height: 400px; background: linear-gradient(45deg, #fff3e0, #ffe0b2); display: flex; align-items: center; justify-content: center;">
+                                    <div class="text-center">
+                                        <i class="fas fa-map-marker-alt fa-3x text-primary mb-3"></i>
+                                        <p class="text-muted">Haz clic en el mapa para seleccionar la ubicación exacta</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card incident-card mt-3">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">Información</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Tu reporte será revisado por un validador antes de ser publicado.
+                                </div>
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Asegúrate de que toda la información sea veraz y precisa.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- List Section -->
+        <div class="page-section" id="list">
+            <div class="container-fluid p-4">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h1 class="h3 mb-0">Lista de Incidencias</h1>
+                        <p class="text-muted">Vista completa de todas las incidencias registradas</p>
+                    </div>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="filter-panel">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" placeholder="Buscar por título...">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select">
+                                <option>Todas las provincias</option>
+                                <option>Distrito Nacional</option>
+                                <option>Santo Domingo</option>
+                                <option>Santiago</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select">
+                                <option>Todos los tipos</option>
+                                <option>Accidente</option>
+                                <option>Robo</option>
+                                <option>Pelea</option>
+                                <option>Desastre</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select">
+                                <option>Último mes</option>
+                                <option>Última semana</option>
+                                <option>Últimas 24h</option>
+                                <option>Personalizado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary w-100">
+                                <i class="fas fa-filter me-1"></i> Filtrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Incidents List -->
+                <div class="row">
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="incident-card card h-100">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23dc3545'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='12'%3EAccidente%3C/text%3E%3C/svg%3E" class="incident-image" alt="Incidencia">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="incident-type-badge bg-danger text-white">Accidente</span>
+                                    <small class="text-muted">Hace 2 horas</small>
+                                </div>
+                                <h5 class="card-title">Accidente de tránsito en Av. Churchill</h5>
+                                <p class="text-muted">Santo Domingo Este, Distrito Nacional</p>
+                                <p class="card-text">Colisión múltiple involucra 3 vehículos en la intersección con Av. 27 de Febrero...</p>
+                                <div class="row text-center border-top pt-2">
+                                    <div class="col-4">
+                                        <small class="text-muted d-block">Muertos</small>
+                                        <strong class="text-danger">2</strong>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted d-block">Heridos</small>
+                                        <strong class="text-warning">5</strong>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted d-block">Pérdidas</small>
+                                        <strong class="text-info">$50K</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white">
+                                <button class="btn btn-outline-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#incidentModal">
+                                    <i class="fas fa-eye me-1"></i> Ver Detalles
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="incident-card card h-100">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23ffc107'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='black' font-size='14'%3ERobo%3C/text%3E%3C/svg%3E" class="incident-image" alt="Incidencia">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="incident-type-badge bg-warning text-dark">Robo</span>
+                                    <small class="text-muted">Hace 4 horas</small>
+                                </div>
+                                <h5 class="card-title">Robo a mano armada en supermercado</h5>
+                                <p class="text-muted">Santiago de los Caballeros, Santiago</p>
+                                <p class="card-text">Dos individuos encapuchados asaltaron el supermercado La Sirena en horario nocturno...</p>
+                                <div class="row text-center border-top pt-2">
+                                    <div class="col-4">
+                                        <small class="text-muted d-block">Muertos</small>
+                                        <strong class="text-danger">0</strong>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted d-block">Heridos</small>
+                                        <strong class="text-warning">1</strong>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted d-block">Pérdidas</small>
+                                        <strong class="text-info">$25K</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white">
+                                <button class="btn btn-outline-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#incidentModal">
+                                    <i class="fas fa-eye me-1"></i> Ver Detalles
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="incident-card card h-100">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2317a2b8'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='12'%3EDesastre%3C/text%3E%3C/svg%3E" class="incident-image" alt="Incidencia">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="incident-type-badge bg-info text-white">Desastre</span>
+                                    <small class="text-muted">Hace 6 horas</small>
+                                </div>
+                                <h5 class="card-title">Inundación por lluvias torrenciales</h5>
+                                <p class="text-muted">San Pedro de Macorís</p>
+                                <p class="card-text">Fuertes precipitaciones causaron desbordamiento del río Higuamo afectando varias comunidades...</p>
+                                <div class="row text-center border-top pt-2">
+                                    <div class="col-4">
+                                        <small class="text-muted d-block">Muertos</small>
+                                        <strong class="text-danger">0</strong>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted d-block">Heridos</small>
+                                        <strong class="text-warning">0</strong>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted d-block">Pérdidas</small>
+                                        <strong class="text-info">$100K</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white">
+                                <button class="btn btn-outline-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#incidentModal">
+                                    <i class="fas fa-eye me-1"></i> Ver Detalles
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Anterior</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Siguiente</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Admin Section -->
+        <div class="page-section" id="admin">
+            <div class="container-fluid p-4">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h1 class="h3 mb-0">Panel de Administración</h1>
+                        <p class="text-muted">Gestión de catálogos del sistema</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Provincias -->
+                    <div class="col-md-6 mb-4">
+                        <div class="admin-panel">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-map me-2 text-primary"></i>
+                                    Provincias
+                                </h5>
+                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addProvinceModal">
+                                    <i class="fas fa-plus me-1"></i> Agregar
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Municipios</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Distrito Nacional</td>
+                                            <td>1</td>
+                                            <td>
+                                                <button class="btn btn-outline-primary btn-sm me-1">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Santo Domingo</td>
+                                            <td>8</td>
+                                            <td>
+                                                <button class="btn btn-outline-primary btn-sm me-1">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Santiago</td>
+                                            <td>9</td>
+                                            <td>
+                                                <button class="btn btn-outline-primary btn-sm me-1">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Municipios -->
+                    <div class="col-md-6 mb-4">
+                        <div class="admin-panel">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-building me-2 text-success"></i>
+                                    Municipios
+                                </h5>
+                                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addMunicipalityModal">
+                                    <i class="fas fa-plus me-1"></i> Agregar
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Provincia</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Santo Domingo Este</td>
+                                            <td>Santo Domingo</td>
+                                            <td>
+                                                <button class="btn btn-outline-primary btn-sm me-1">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Santo Domingo Norte</td>
+                                            <td>Santo Domingo</td>
+                                            <td>
+                                                <button class="btn btn-outline-primary btn-sm me-1">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Santiago de los Caballeros</td>
+                                            <td>Santiago</td>
+                                            <td>
+                                                <button class="btn btn-outline-primary btn-sm me-1">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Barrios -->
+                    <div class="col-md-6 mb-4">
+                        <div class="admin-panel">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-home me-2 text-warning"></i>
+                                    Barrios
+                                </h5>
+                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#addNeighborhoodModal">
+                                    <i class="fas fa-plus me-1"></i> Agregar
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Municipio</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Piantini</td>
+                                            <td>Distrito Nacional</td>
+                                            <td>
+                                                <button class="btn btn-outline-primary btn-sm me-1">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Los Alcarrizos</td>
+                                            <td>Santo Domingo Oeste</td>
+                                            <td>
+                                                <button class="btn btn-outline-primary btn-sm me-1">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Villa Juana</td>
+                                            <td>Distrito Nacional</td>
+                                            <td>
+                                                <button class="btn btn-outline-primary btn-sm me-1">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tipos de Incidencias -->
+                    <div class="col-md-6 mb-4">
+                        <div class="admin-panel">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-exclamation-triangle me-2 text-danger"></i>
+                                    Tipos de Incidencias
+                                </h5>
+                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#addIncidentTypeModal">
+                                    <i class="fas fa-plus me-1"></i> Agregar
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Color</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Accidente</td>
+                                            <td><span class="badge bg-danger">Rojo</span></td>
+                                            <td>
+                                                <button class="btn btn-outline-primary btn-sm me-1">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Robo</td>
+                                            <td><span class="badge bg-warning">Amarillo</span></td>
+                                            <td>
+                                                <button class="btn btn-outline-primary btn-sm me-1">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Pelea</td>
+                                            <td><span class="badge bg-secondary">Gris</span></td>
+                                            <td>
+                                                <button class="btn btn-outline-primary btn-sm me-1">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Desastre</td>
+                                            <td><span class="badge bg-info">Azul</span></td>
+                                            <td>
+                                                <button class="btn btn-outline-primary btn-sm me-1">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Validator Section -->
+        <div class="page-section" id="validator">
+            <div class="container-fluid p-4">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h1 class="h3 mb-0">Panel de Validación</h1>
+                        <p class="text-muted">Revisión y aprobación de reportes pendientes</p>
+                    </div>
+                </div>
+
+                <!-- Pending Reports Stats -->
+                <div class="row mb-4">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">8</h3>
+                                    <p class="mb-0">Pendientes</p>
+                                </div>
+                                <i class="fas fa-hourglass-half fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669);">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">45</h3>
+                                    <p class="mb-0">Aprobados</p>
+                                </div>
+                                <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">12</h3>
+                                    <p class="mb-0">Rechazados</p>
+                                </div>
+                                <i class="fas fa-times-circle fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">3</h3>
+                                    <p class="mb-0">Correcciones</p>
+                                </div>
+                                <i class="fas fa-edit fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Reports -->
+                <div class="admin-panel">
+                    <h5 class="mb-3">
+                        <i class="fas fa-clock text-warning me-2"></i>
+                        Reportes Pendientes de Validación
+                    </h5>
+                    
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Título</th>
+                                    <th>Tipo</th>
+                                    <th>Ubicación</th>
+                                    <th>Reportero</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <small>31/07/2025</small><br>
+                                        <small class="text-muted">14:30</small>
+                                    </td>
+                                    <td>Accidente en autopista</td>
+                                    <td><span class="incident-type-badge bg-danger text-white">Accidente</span></td>
+                                    <td>
+                                        <small>Santo Domingo Este</small><br>
+                                        <small class="text-muted">Distrito Nacional</small>
+                                    </td>
+                                    <td>
+                                        <small>juan.perez@gmail.com</small><br>
+                                        <small class="text-muted">Reportero</small>
+                                    </td>
+                                    <td><span class="status-pending"><i class="fas fa-clock me-1"></i>Pendiente</span></td>
+                                    <td>
+                                        <button class="btn btn-outline-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#validateModal">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-success btn-sm me-1">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <small>31/07/2025</small><br>
+                                        <small class="text-muted">12:15</small>
+                                    </td>
+                                    <td>Robo en tienda comercial</td>
+                                    <td><span class="incident-type-badge bg-warning text-dark">Robo</span></td>
+                                    <td>
+                                        <small>Santiago</small><br>
+                                        <small class="text-muted">Santiago</small>
+                                    </td>
+                                    <td>
+                                        <small>maria.rodriguez@hotmail.com</small><br>
+                                        <small class="text-muted">Reportero</small>
+                                    </td>
+                                    <td><span class="status-pending"><i class="fas fa-clock me-1"></i>Pendiente</span></td>
+                                    <td>
+                                        <button class="btn btn-outline-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#validateModal">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-success btn-sm me-1">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <small>30/07/2025</small><br>
+                                        <small class="text-muted">18:45</small>
+                                    </td>
+                                    <td>Inundación por lluvias</td>
+                                    <td><span class="incident-type-badge bg-info text-white">Desastre</span></td>
+                                    <td>
+                                        <small>La Vega</small><br>
+                                        <small class="text-muted">La Vega</small>
+                                    </td>
+                                    <td>
+                                        <small>carlos.martinez@yahoo.com</small><br>
+                                        <small class="text-muted">Reportero</small>
+                                    </td>
+                                    <td><span class="status-pending"><i class="fas fa-clock me-1"></i>Pendiente</span></td>
+                                    <td>
+                                        <button class="btn btn-outline-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#validateModal">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-success btn-sm me-1">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Suggested Corrections -->
+                <div class="admin-panel mt-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-edit text-info me-2"></i>
+                        Correcciones Sugeridas
+                    </h5>
+                    
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Incidencia</th>
+                                    <th>Campo</th>
+                                    <th>Valor Actual</th>
+                                    <th>Valor Sugerido</th>
+                                    <th>Usuario</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Accidente en Av. Churchill</td>
+                                    <td>Heridos</td>
+                                    <td><span class="text-muted">3</span></td>
+                                    <td><span class="text-primary fw-bold">5</span></td>
+                                    <td>ana.garcia@gmail.com</td>
+                                    <td>
+                                        <button class="btn btn-outline-success btn-sm me-1">
+                                            <i class="fas fa-check"></i> Aprobar
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm">
+                                            <i class="fas fa-times"></i> Rechazar
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Robo en supermercado</td>
+                                    <td>Coordenadas</td>
+                                    <td><span class="text-muted">18.4861, -69.9312</span></td>
+                                    <td><span class="text-primary fw-bold">18.4875, -69.9325</span></td>
+                                    <td>pedro.lopez@hotmail.com</td>
+                                    <td>
+                                        <button class="btn btn-outline-success btn-sm me-1">
+                                            <i class="fas fa-check"></i> Aprobar
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm">
+                                            <i class="fas fa-times"></i> Rechazar
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="page-section" id="statistics">
+            <div class="container-fluid p-4">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h1 class="h3 mb-0">Estadísticas</h1>
+                        <p class="text-muted">Análisis y métricas del sistema</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Chart 1 -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="chart-container">
+                            <h5 class="mb-3">Incidencias por Tipo</h5>
+                            <div style="height: 300px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 10px;">
+                                <div class="text-center">
+                                    <i class="fas fa-chart-pie fa-3x text-primary mb-3"></i>
+                                    <p class="text-muted">Gráfico de barras/pie chart</p>
+                                    <small class="text-muted">Accidentes: 45%, Robos: 30%, Desastres: 15%, Peleas: 10%</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart 2 -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="chart-container">
+                            <h5 class="mb-3">Tendencia Mensual</h5>
+                            <div style="height: 300px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 10px;">
+                                <div class="text-center">
+                                    <i class="fas fa-chart-line fa-3x text-success mb-3"></i>
+                                    <p class="text-muted">Gráfico de líneas temporal</p>
+                                    <small class="text-muted">Showing trend over the last 12 months</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart 3 -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="chart-container">
+                            <h5 class="mb-3">Incidencias por Provincia</h5>
+                            <div style="height: 300px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 10px;">
+                                <div class="text-center">
+                                    <i class="fas fa-chart-bar fa-3x text-warning mb-3"></i>
+                                    <p class="text-muted">Gráfico de barras por ubicación</p>
+                                    <small class="text-muted">DN: 45, SD: 38, Santiago: 32, Otros: 89</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart 4 -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="chart-container">
+                            <h5 class="mb-3">Severidad de Incidencias</h5>
+                            <div style="height: 300px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 10px;">
+                                <div class="text-center">
+                                    <i class="fas fa-chart-area fa-3x text-danger mb-3"></i>
+                                    <p class="text-muted">Análisis de daños y víctimas</p>
+                                    <small class="text-muted">Basado en muertos, heridos y pérdidas económicas</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Incident Detail Modal -->
+    <div class="modal fade incident-modal" id="incidentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Detalle de Incidencia
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <h4>Accidente de tránsito en Av. Churchill</h4>
+                                <div class="d-flex gap-2 mb-2">
+                                    <span class="incident-type-badge bg-danger text-white">Accidente</span>
+                                    <span class="badge bg-secondary">Validado</span>
+                                </div>
+                                <p class="text-muted">
+                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                    Santo Domingo Este, Distrito Nacional - Villa Duarte
+                                </p>
+                                <p class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    31 de julio de 2025, 2:30 PM
+                                </p>
+                            </div>
+
+                            <div class="mb-4">
+                                <h6>Descripción</h6>
+                                <p>Colisión múltiple que involucra 3 vehículos en la intersección de Av. Churchill con Av. 27 de Febrero. El accidente se produjo durante las horas pico de la tarde debido a condiciones de lluvia que afectaron la visibilidad de los conductores.</p>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-4 text-center">
+                                    <div class="border rounded p-3">
+                                        <i class="fas fa-skull text-danger fa-2x mb-2"></i>
+                                        <h5 class="text-danger mb-0">2</h5>
+                                        <small class="text-muted">Muertos</small>
+                                    </div>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <div class="border rounded p-3">
+                                        <i class="fas fa-user-injured text-warning fa-2x mb-2"></i>
+                                        <h5 class="text-warning mb-0">5</h5>
+                                        <small class="text-muted">Heridos</small>
+                                    </div>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <div class="border rounded p-3">
+                                        <i class="fas fa-dollar-sign text-info fa-2x mb-2"></i>
+                                        <h5 class="text-info mb-0">$50K</h5>
+                                        <small class="text-muted">Pérdidas</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <h6>Coordenadas</h6>
+                                <p class="text-muted">Latitud: 18.4861 | Longitud: -69.9312</p>
+                                <a href="#" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-map me-1"></i> Ver en Mapa
+                                </a>
+                            </div>
+
+                            <div class="mb-4">
+                                <h6>Referencias</h6>
+                                <a href="#" class="btn btn-outline-info btn-sm me-2">
+                                    <i class="fab fa-twitter me-1"></i> Ver en Twitter
+                                </a>
+                                <a href="#" class="btn btn-outline-primary btn-sm">
+                                    <i class="fab fa-facebook me-1"></i> Ver en Facebook
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23dc3545'/%3E%3Ctext x='150' y='105' text-anchor='middle' fill='white' font-size='16'%3EFoto del Accidente%3C/text%3E%3C/svg%3E" class="img-fluid rounded" alt="Foto de la incidencia">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6>Información del Reporte</h6>
+                                <p class="mb-1"><strong>Reportado por:</strong> Juan Pérez</p>
+                                <p class="mb-1"><strong>Email:</strong> juan.perez@gmail.com</p>
+                                <p class="mb-1"><strong>Fecha de reporte:</strong> 31/07/2025 3:15 PM</p>
+                                <p class="mb-0"><strong>Estado:</strong> <span class="status-approved">Aprobado</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Correction Form -->
+                    <div class="mt-4 border-top pt-4">
+                        <h6 class="mb-3">
+                            <i class="fas fa-edit me-1"></i>
+                            Sugerir Corrección
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Muertos</label>
+                                    <input type="number" class="form-control" value="2">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Heridos</label>
+                                    <input type="number" class="form-control" value="5">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Pérdida Estimada (RD$)</label>
+                                    <input type="number" class="form-control" value="50000">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Provincia</label>
+                                    <select class="form-select">
+                                        <option selected>Distrito Nacional</option>
+                                        <option>Santo Domingo</option>
+                                        <option>Santiago</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Comentario de la corrección</label>
+                            <textarea class="form-control" rows="2" placeholder="Explica por qué sugieres esta corrección..."></textarea>
+                        </div>
+                        <button class="btn btn-warning">
+                            <i class="fas fa-paper-plane me-1"></i>
+                            Enviar Corrección
+                        </button>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="mt-4 border-top pt-4">
+                        <h6 class="mb-3">
+                            <i class="fas fa-comments me-1"></i>
+                            Comentarios (3)
+                        </h6>
+                        
+                        <div class="comment mb-3 p-3 bg-light rounded">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <strong>María García</strong>
+                                <small class="text-muted">Hace 2 horas</small>
+                            </div>
+                            <p class="mb-0">Fui testigo del accidente. Efectivamente fueron 3 vehículos involucrados. Los paramédicos tardaron unos 15 minutos en llegar.</p>
+                        </div>
+                        
+                        <div class="comment mb-3 p-3 bg-light rounded">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <strong>Carlos Rodríguez</strong>
+                                <small class="text-muted">Hace 1 hora</small>
+                            </div>
+                            <p class="mb-0">Confirmo que había mucho tráfico en la zona. Las autoridades cerraron un carril por casi 2 horas.</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <textarea class="form-control" rows="3" placeholder="Agregar un comentario..."></textarea>
+                        </div>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-comment me-1"></i>
+                            Comentar
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary">
+                        <i class="fas fa-share me-1"></i>
+                        Compartir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Validation Modal -->
+    <div class="modal fade" id="validateModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-check-double me-2"></i>
+                        Validar Reporte
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Revisa cuidadosamente toda la información antes de aprobar o rechazar el reporte.
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Información del Reporte</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Título:</strong></td>
+                                    <td>Accidente en autopista</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tipo:</strong></td>
+                                    <td><span class="incident-type-badge bg-danger text-white">Accidente</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Ubicación:</strong></td>
+                                    <td>Santo Domingo Este, DN</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fecha:</strong></td>
+                                    <td>31/07/2025 14:30</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Reportero:</strong></td>
+                                    <td>juan.perez@gmail.com</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Estadísticas</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Muertos:</strong></td>
+                                    <td>1</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Heridos:</strong></td>
+                                    <td>3</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Pérdidas:</strong></td>
+                                    <td>RD$ 25,000</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Coordenadas:</strong></td>
+                                    <td>18.4861, -69.9312</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6>Descripción</h6>
+                        <p class="border p-3 rounded">Accidente de tránsito en la autopista Las Américas. Un vehículo perdió el control debido a la lluvia y colisionó con la barrera central.</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6>Comentarios de Validación</h6>
+                        <textarea class="form-control" rows="3" placeholder="Agregar comentarios sobre la validación (opcional)..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger">
+                        <i class="fas fa-times me-1"></i>
+                        Rechazar
+                    </button>
+                    <button type="button" class="btn btn-success">
+                        <i class="fas fa-check me-1"></i>
+                        Aprobar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+       // Navigation functionality
+function showSection(sectionId) {
+    // Hide all sections
+    document.querySelectorAll('.page-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    // Show selected section
+    document.getElementById(sectionId).classList.add('active');
+    
+    // Update active nav link
+    document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
+        link.classList.remove('active');
+    });
+    
+    // Find and activate corresponding nav link
+    const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+    navLinks.forEach(link => {
+        if (link.getAttribute('onclick') && link.getAttribute('onclick').includes(sectionId)) {
+            link.classList.add('active');
+        }
+    });
+}
+
+// Sidebar toggle functionality
+document.getElementById('sidebarToggle').addEventListener('click', function() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    
+    if (window.innerWidth > 768) {
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('shifted');
+    } else {
+        sidebar.classList.toggle('show');
+    }
+});
+
+// Initialize main content positioning
+if (window.innerWidth > 768) {
+    document.getElementById('mainContent').classList.add('shifted');
+}
+
+// Handle window resize
+window.addEventListener('resize', function() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    
+    if (window.innerWidth > 768) {
+        sidebar.classList.remove('show');
+        if (!sidebar.classList.contains('collapsed')) {
+            mainContent.classList.add('shifted');
+        }
+    } else {
+        mainContent.classList.remove('shifted');
+    }
+});
+
+// Form submission handlers
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle form submissions
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form type
+            const isReportForm = form.closest('#report');
+            const isLoginForm = form.closest('#super-login') || form.closest('#login');
+            const isProfileForm = form.closest('#profile');
+            
+            if (isReportForm) {
+                handleReportSubmission(form);
+            } else if (isLoginForm) {
+                handleLogin(form);
+            } else if (isProfileForm) {
+                handleProfileUpdate(form);
+            } else {
+                handleGenericForm(form);
+            }
+        });
+    });
+
+    // Handle admin action buttons
+    setupAdminActions();
+    
+    // Handle validation actions
+    setupValidationActions();
+    
+    // Initialize tooltips
+    initializeTooltips();
+    
+    // Start real-time updates
+    startRealTimeUpdates();
+    
+    // Initialize search functionality
+    initializeSearch();
+    
+    // Load saved drafts
+    loadSavedDrafts();
+    
+    console.log('Sistema de Incidencias RD - Inicializado');
+});
+
+// Report form submission
+function handleReportSubmission(form) {
+    const formData = new FormData(form);
+    const reportData = {};
+    
+    // Extract form data
+    for (let [key, value] of formData.entries()) {
+        reportData[key] = value;
+    }
+    
+    // Add timestamp
+    reportData.timestamp = new Date().toISOString();
+    reportData.status = 'pending';
+    reportData.id = generateReportId();
+    
+    // Save to localStorage (simulate API call)
+    saveReport(reportData);
+    
+    // Clear draft
+    clearDraft();
+    
+    // Show success message
+    showNotification('Reporte enviado correctamente. Será revisado por un validador.', 'success');
+    
+    // Reset form
+    form.reset();
+    
+    // Redirect to dashboard
+    setTimeout(() => {
+        showSection('dashboard');
+    }, 2000);
+}
+
+// Login handler
+function handleLogin(form) {
+    const formData = new FormData(form);
+    const username = formData.get('username') || 'demo';
+    const password = formData.get('password') || 'demo';
+    
+    // Simulate authentication
+    if (validateCredentials(username, password)) {
+        // Set user session
+        setUserSession({
+            username: username,
+            email: username.includes('@') ? username : `${username}@example.com`,
+            role: username === 'admin' ? 'admin' : 'validator',
+            loginTime: new Date().toISOString()
+        });
+        
+        showNotification('Inicio de sesión exitoso', 'success');
+        showSection('dashboard');
+    } else {
+        showNotification('Credenciales incorrectas', 'error');
+    }
+}
+
+// Profile update handler
+function handleProfileUpdate(form) {
+    const formData = new FormData(form);
+    const profileData = {};
+    
+    for (let [key, value] of formData.entries()) {
+        profileData[key] = value;
+    }
+    
+    // Save profile data
+    updateUserProfile(profileData);
+    
+    showNotification('Perfil actualizado correctamente', 'success');
+}
+
+// Generic form handler
+function handleGenericForm(form) {
+    showNotification('Formulario procesado correctamente', 'success');
+}
+
+// Admin actions setup
+function setupAdminActions() {
+    // Edit buttons
+    const editButtons = document.querySelectorAll('.btn-outline-primary');
+    editButtons.forEach(button => {
+        if (button.innerHTML.includes('fa-edit')) {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const row = button.closest('tr');
+                if (row) {
+                    editTableRow(row);
+                }
+            });
+        }
+    });
+
+    // Delete buttons
+    const deleteButtons = document.querySelectorAll('.btn-outline-danger');
+    deleteButtons.forEach(button => {
+        if (button.innerHTML.includes('fa-trash')) {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('¿Está seguro de que desea eliminar este elemento?')) {
+                    const row = button.closest('tr');
+                    if (row) {
+                        deleteTableRow(row);
+                    }
+                }
+            });
+        }
+    });
+
+    // Add buttons for modals
+    setupModalActions();
+}
+
+// Validation actions setup
+function setupValidationActions() {
+    // Approve buttons
+    const approveButtons = document.querySelectorAll('.btn-outline-success');
+    approveButtons.forEach(button => {
+        if (button.innerHTML.includes('fa-check')) {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('¿Aprobar este reporte?')) {
+                    approveReport(button);
+                }
+            });
+        }
+    });
+
+    // Reject buttons  
+    const rejectButtons = document.querySelectorAll('.btn-outline-danger');
+    rejectButtons.forEach(button => {
+        if (button.innerHTML.includes('fa-times') && !button.innerHTML.includes('fa-trash')) {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('¿Rechazar este reporte?')) {
+                    rejectReport(button);
+                }
+            });
+        }
+    });
+}
+
+// Modal actions setup
+function setupModalActions() {
+    // Save buttons in modals
+    const modalSaveButtons = document.querySelectorAll('.modal .btn-primary, .modal .btn-success, .modal .btn-warning, .modal .btn-danger');
+    modalSaveButtons.forEach(button => {
+        if (button.innerHTML.includes('Guardar') || button.innerHTML.includes('Aprobar')) {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const modal = button.closest('.modal');
+                const form = modal.querySelector('form');
+                
+                if (form) {
+                    processModalForm(form, modal);
+                } else {
+                    // Handle non-form modal actions
+                    handleModalAction(modal, button);
+                }
+            });
+        }
+    });
+}
+
+// Process modal forms
+function processModalForm(form, modal) {
+    const formData = new FormData(form);
+    const data = {};
+    
+    for (let [key, value] of formData.entries()) {
+        data[key] = value;
+    }
+    
+    // Determine action based on modal ID
+    const modalId = modal.id;
+    
+    switch(modalId) {
+        case 'addProvinceModal':
+            addProvince(data);
+            break;
+        case 'addMunicipalityModal':
+            addMunicipality(data);
+            break;
+        case 'addNeighborhoodModal':
+            addNeighborhood(data);
+            break;
+        case 'addIncidentTypeModal':
+            addIncidentType(data);
+            break;
+        case 'validateModal':
+            processValidation(data);
+            break;
+        default:
+            console.log('Processing form:', data);
+    }
+    
+    // Hide modal
+    const modalInstance = bootstrap.Modal.getInstance(modal);
+    modalInstance.hide();
+    
+    // Reset form
+    form.reset();
+    
+    showNotification('Datos guardados correctamente', 'success');
+}
+
+// Handle modal actions without forms
+function handleModalAction(modal, button) {
+    const modalId = modal.id;
+    const action = button.textContent.trim();
+    
+    if (modalId === 'validateModal') {
+        if (action.includes('Aprobar')) {
+            approveValidation();
+        } else if (action.includes('Rechazar')) {
+            rejectValidation();
+        }
+    }
+    
+    // Hide modal
+    const modalInstance = bootstrap.Modal.getInstance(modal);
+    modalInstance.hide();
+}
+
+// Notification system
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Real-time updates
+function startRealTimeUpdates() {
+    // Update notification badge
+    setInterval(() => {
+        const badge = document.querySelector('.notification-badge');
+        if (badge) {
+            const randomCount = Math.floor(Math.random() * 10) + 1;
+            badge.textContent = randomCount;
+        }
+    }, 30000);
+    
+    // Update dashboard stats
+    setInterval(() => {
+        updateDashboardStats();
+    }, 60000);
+    
+    // Update pending validations
+    setInterval(() => {
+        updatePendingValidations();
+    }, 45000);
+}
+
+// Update dashboard statistics
+function updateDashboardStats() {
+    const stats = document.querySelectorAll('.stat-card h3');
+    stats.forEach(stat => {
+        const currentValue = parseInt(stat.textContent);
+        const newValue = currentValue + Math.floor(Math.random() * 3);
+        stat.textContent = newValue;
+    });
+}
+
+// Update pending validations
+function updatePendingValidations() {
+    const pendingCount = document.querySelector('.stat-card h3');
+    if (pendingCount) {
+        const reports = getStoredReports();
+        const pending = reports.filter(r => r.status === 'pending').length;
+        pendingCount.textContent = pending;
+    }
+}
+
+// Search functionality
+function initializeSearch() {
+    const searchInputs = document.querySelectorAll('input[placeholder*="Buscar"]');
+    searchInputs.forEach(input => {
+        input.addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            performSearch(query, input);
+        });
+    });
+}
+
+function performSearch(query, inputElement) {
+    const section = inputElement.closest('.page-section');
+    const cards = section.querySelectorAll('.incident-card, .admin-panel table tbody tr');
+    
+    cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        if (text.includes(query)) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// Auto-save functionality
+function autoSave(formData) {
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+        data[key] = value;
+    }
+    
+    localStorage.setItem('incidentDraft', JSON.stringify(data));
+    console.log('Form auto-saved');
+}
+
+function loadSavedDrafts() {
+    const draft = localStorage.getItem('incidentDraft');
+    if (draft) {
+        const data = JSON.parse(draft);
+        const reportForm = document.querySelector('#report form');
+        if (reportForm) {
+            // Fill form with draft data
+            Object.keys(data).forEach(key => {
+                const field = reportForm.querySelector(`[name="${key}"]`);
+                if (field) {
+                    field.value = data[key];
+                }
+            });
+            
+            showNotification('Borrador cargado automáticamente', 'info');
+        }
+    }
+}
+
+function clearDraft() {
+    localStorage.removeItem('incidentDraft');
+}
+
+// Data management functions
+function generateReportId() {
+    return 'RPT-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+}
+
+function saveReport(reportData) {
+    const reports = getStoredReports();
+    reports.push(reportData);
+    localStorage.setItem('reports', JSON.stringify(reports));
+}
+
+function getStoredReports() {
+    const reports = localStorage.getItem('reports');
+    return reports ? JSON.parse(reports) : [];
+}
+
+function updateReport(reportId, updateData) {
+    const reports = getStoredReports();
+    const index = reports.findIndex(r => r.id === reportId);
+    if (index !== -1) {
+        reports[index] = { ...reports[index], ...updateData };
+        localStorage.setItem('reports', JSON.stringify(reports));
+    }
+}
+
+// User session management
+function setUserSession(userData) {
+    localStorage.setItem('userSession', JSON.stringify(userData));
+}
+
+function getUserSession() {
+    const session = localStorage.getItem('userSession');
+    return session ? JSON.parse(session) : null;
+}
+
+function clearUserSession() {
+    localStorage.removeItem('userSession');
+}
+
+function updateUserProfile(profileData) {
+    const session = getUserSession();
+    if (session) {
+        const updatedSession = { ...session, ...profileData };
+        setUserSession(updatedSession);
+    }
+}
+
+// Authentication
+function validateCredentials(username, password) {
+    // Simple validation - in real app this would be API call
+    const validCredentials = [
+        { username: 'admin', password: 'admin123' },
+        { username: 'validator', password: 'validator123' },
+        { username: 'demo', password: 'demo' }
+    ];
+    
+    return validCredentials.some(cred => 
+        cred.username === username && cred.password === password
+    );
+}
+
+// Admin functions
+function editTableRow(row) {
+    const cells = row.querySelectorAll('td');
+    cells.forEach((cell, index) => {
+        if (index < cells.length - 1) { // Skip action column
+            const currentText = cell.textContent.trim();
+            if (!cell.querySelector('input')) {
+                cell.innerHTML = `<input type="text" class="form-control form-control-sm" value="${currentText}">`;
+            }
+        }
+    });
+    
+    // Change buttons to save/cancel
+    const actionCell = cells[cells.length - 1];
+    actionCell.innerHTML = `
+        <button class="btn btn-success btn-sm me-1" onclick="saveTableRow(this)">
+            <i class="fas fa-save"></i>
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="cancelEdit(this)">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+}
+
+function saveTableRow(button) {
+    const row = button.closest('tr');
+    const inputs = row.querySelectorAll('input');
+    
+    inputs.forEach(input => {
+        const cell = input.parentNode;
+        cell.textContent = input.value;
+    });
+    
+    // Restore action buttons
+    const actionCell = row.querySelector('td:last-child');
+    actionCell.innerHTML = `
+        <button class="btn btn-outline-primary btn-sm me-1" onclick="editTableRow(this.closest('tr'))">
+            <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn btn-outline-danger btn-sm" onclick="deleteTableRow(this.closest('tr'))">
+            <i class="fas fa-trash"></i>
+        </button>
+    `;
+    
+    showNotification('Registro actualizado', 'success');
+}
+
+function cancelEdit(button) {
+    location.reload(); // Simple way to cancel - in real app would restore original values
+}
+
+function deleteTableRow(row) {
+    row.remove();
+    showNotification('Registro eliminado', 'warning');
+}
+
+// Catalog management
+function addProvince(data) {
+    console.log('Adding province:', data);
+    // Add to table (simplified)
+    addToTable('Provincias', [data.name, '0']);
+}
+
+function addMunicipality(data) {
+    console.log('Adding municipality:', data);
+    addToTable('Municipios', [data.name, data.province]);
+}
+
+function addNeighborhood(data) {
+    console.log('Adding neighborhood:', data);
+    addToTable('Barrios', [data.name, data.municipality]);
+}
+
+function addIncidentType(data) {
+    console.log('Adding incident type:', data);
+    const colorBadge = `<span class="badge bg-${data.color}">${data.color}</span>`;
+    addToTable('Tipos de Incidencias', [data.name, colorBadge]);
+}
+
+function addToTable(tableType, rowData) {
+    // Find the appropriate table and add row
+    const tables = document.querySelectorAll('.admin-panel table tbody');
+    tables.forEach(tbody => {
+        const header = tbody.closest('.admin-panel').querySelector('h5');
+        if (header && header.textContent.includes(tableType.split(' ')[0])) {
+            const newRow = document.createElement('tr');
+            
+            rowData.forEach(data => {
+                const cell = document.createElement('td');
+                cell.innerHTML = data;
+                newRow.appendChild(cell);
+            });
+            
+            // Add action buttons
+            const actionCell = document.createElement('td');
+            actionCell.innerHTML = `
+                <button class="btn btn-outline-primary btn-sm me-1">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            newRow.appendChild(actionCell);
+            
+            tbody.appendChild(newRow);
+        }
+    });
+}
+
+// Validation functions
+function approveReport(button) {
+    const row = button.closest('tr');
+    updateReportStatus(row, 'approved');
+    showNotification('Reporte aprobado', 'success');
+}
+
+function rejectReport(button) {
+    const row = button.closest('tr');
+    updateReportStatus(row, 'rejected');
+    showNotification('Reporte rechazado', 'warning');
+}
+
+function updateReportStatus(row, status) {
+    const statusCell = row.querySelector('.status-pending, .status-approved, .status-rejected');
+    if (statusCell) {
+        statusCell.className = `status-${status}`;
+        const icon = status === 'approved' ? 'check-circle' : 
+                    status === 'rejected' ? 'times-circle' : 'clock';
+        const text = status === 'approved' ? 'Aprobado' : 
+                    status === 'rejected' ? 'Rechazado' : 'Pendiente';
+        statusCell.innerHTML = `<i class="fas fa-${icon} me-1"></i>${text}`;
+    }
+    
+    // Hide action buttons
+    const actionCell = row.querySelector('td:last-child');
+    if (actionCell) {
+        actionCell.innerHTML = `<span class="text-muted">Procesado</span>`;
+    }
+}
+
+function approveValidation() {
+    showNotification('Validación aprobada', 'success');
+}
+
+function rejectValidation() {
+    showNotification('Validación rechazada', 'warning');
+}
+
+function processValidation(data) {
+    console.log('Processing validation:', data);
+    showNotification('Validación procesada', 'success');
+}
+
+// Initialize tooltips
+function initializeTooltips() {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+}
+
+// Utility functions
+function formatDate(date) {
+    return new Date(date).toLocaleDateString('es-DO');
+}
+
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('es-DO', {
+        style: 'currency',
+        currency: 'DOP'
+    }).format(amount);
+}
+
+function formatTime(date) {
+    return new Date(date).toLocaleTimeString('es-DO', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// Map functionality (placeholder for Leaflet integration)
+function initializeMap() {
+    console.log('Map initialized - Leaflet integration would go here');
+    // Example Leaflet initialization:
+    /*
+    const map = L.map('mapContainer').setView([18.4861, -69.9312], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    */
+}
+
+// Export functions for global access
+window.showSection = showSection;
+window.editTableRow = editTableRow;
+window.saveTableRow = saveTableRow;
+window.cancelEdit = cancelEdit;
+window.deleteTableRow = deleteTableRow;
+</script>
+</body>
